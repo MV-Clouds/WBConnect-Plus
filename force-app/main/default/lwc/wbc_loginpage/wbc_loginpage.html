@@ -1,0 +1,50 @@
+<template>
+    <div class="login-container slds-grid slds-wrap slds-align_center" style={backgroundStyle}>
+        <img src={logoUrl} alt="WBConnect Plus" class="logo"/>
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-p-around_large slds-text-align_center">
+            <div class="form-box slds-p-around_large">
+                <h1 class="slds-text-heading_large slds-m-bottom_small loginHeading">Login</h1>
+                <p class="slds-text-body_regular slds-m-bottom_large">Login to access your travelwise account</p>
+                <div class="slds-form slds-text-align_left">
+                    <lightning-input type="email" label="Email" name="email" placeholder="your.email@example.com" value={email}
+                        onchange={handleEmailChange} required class="slds-m-bottom_medium" message-when-value-missing="Email is required">
+                    </lightning-input>
+
+                    <lightning-input type="password" label="Password" name="password" placeholder="********" value={password}
+                        onchange={handlePasswordChange} required class="slds-m-bottom_small" message-when-value-missing="Password is required">
+                    </lightning-input>
+
+                    <div class="slds-m-bottom_medium slds-text-align_right navigationText">
+                        <a href={forgotPasswordUrlComputed} target="_self">Forgot Password?</a>
+                    </div>
+
+                    <template if:true={error}>
+                        <div class="slds-text-color_error slds-m-bottom_small" role="alert">
+                            {error}
+                        </div>
+                    </template>
+
+                     <template if:true={isLoading}>
+                        <div class="slds-is-relative slds-m-vertical_medium spinner-container">
+                            <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+                        </div>
+                    </template>
+
+                    <lightning-button label="Login" variant="brand" onclick={handleLogin} disabled={isLoading} class="slds-button slds-button_stretch"></lightning-button>
+
+                     <div class="slds-text-align_center slds-m-top_medium navigationText">
+                         Don't have an account? <a href={selfRegisterUrlComputed} target="_self">Sign up</a>
+                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-p-around_large">
+            <div class="illustration-container">
+               <img src={LoginIllustration} alt="Login Illustration" class="illustration-image">
+            </div>
+       </div>
+       <div class="mvcFooterImg">
+            <img src={poweredByMVC} alt="Powered by MVC" class="powered-by-mvc">
+       </div>
+    </div>
+</template>
