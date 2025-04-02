@@ -1,5 +1,6 @@
 .login-container {
     min-height: 100vh;
+    width: 100vw;
     background-color: #f0f7f0;
     background-size: 100%;
     background-repeat: repeat;
@@ -94,8 +95,8 @@ a:hover {
 
     .form-box {
         width: 80%;
-        top: unset;
-        left: unset;
+        top: 10vh;
+        left: 10vw;
     }
 
     .logo{

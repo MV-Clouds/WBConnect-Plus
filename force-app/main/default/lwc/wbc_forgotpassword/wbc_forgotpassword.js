@@ -13,25 +13,17 @@ export default class Wbc_forgotpassword extends LightningElement {
     @track repassword;
     @track error;
     @track isLoading = false;
-    isEmailPage = false;
+    isEmailPage = true;
     isVerifyCodePage = false;
-    isSetPasswordPage = true;
+    isSetPasswordPage = false;
 
-    @api startUrl = '/'; // Default redirect location after login
+    @api startUrl = '/login'; // Default redirect location on back to login click
     logoUrl = logoImg;
     forgotPassIllustration = forgotPassIllustrationImg;
     verifyCodeillustration = verifyCodeillustrationImg;
     setPasswordIllustration = setPasswordIllustrationImg;
     poweredByMVC = poweredByMVCImg
     backgroundStyle = `background-image: url(${Login_BG});`;
-
-    get forgotPasswordUrlComputed() {
-        return this.forgotPasswordUrl && this.forgotPasswordUrl.startsWith('/') ? this.forgotPasswordUrl : '/ForgotPassword';
-    }
-
-    get selfRegisterUrlComputed() {
-        return this.selfRegisterUrl && this.selfRegisterUrl.startsWith('/') ? this.selfRegisterUrl : '/SelfRegister';
-    }
 
     handleEmailChange(event) {
         this.email = event.target.value;
