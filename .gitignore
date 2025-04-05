@@ -43,3 +43,25 @@ $RECYCLE.BIN/
 **/__pycache__/
 **/.venv/
 **/venv/
+
+# Ignore .sf folder files
+.sf/
+
+# Ignore .sfdx folder files
+.sfdx/
+
+# Ignore manifest folder files
+manifest/
+
+# Ignore .vscode folder files
+.vscode/
+
+# Ignore __tests__ folder files
+__tests__/
+
+# Ignore jsconfig.json file
+jsconfig.json
+
+.gitignore
+
+objects/
