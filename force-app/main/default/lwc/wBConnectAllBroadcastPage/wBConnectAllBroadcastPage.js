@@ -21,7 +21,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
     visiblePages = 5;
     isLoading = false;
     showPopup = false;
-    selectedObjectName = '';
+    selectedObjectName = 'Lead';
     popUpFirstPage = true;
     popUpSecondpage = false;
     popUpLastPage = false;
@@ -267,14 +267,13 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
     handleGroupSelection(event) {
         try {
             const groupId = event.target.dataset.id;
-            const selectedGroup = this.broadcastGroups.find(group => group.Id === groupId);
     
             if (event.target.checked) {
                 // Add group ID to selected list if checked
                 if (!this.selectedGroupIds.some(group => group.Id === groupId)) {
                     this.selectedGroupIds = [
                         ...this.selectedGroupIds,
-                        { Id: groupId, ObjName: selectedGroup.Object_Name__c } // Store both Id and Name
+                        { Id: groupId, ObjName: this.selectedObjectName } // Store both Id and Name
                     ];
                 }
             } else {
@@ -282,7 +281,6 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
                 this.selectedGroupIds = this.selectedGroupIds.filter(group => group.Id !== groupId);
             }
     
-            this.selectedObjectName = this.selectedGroupIds[0]?.ObjName || '';
     
             // Update filteredGroups to reflect selection
             this.filteredGroups = this.filteredGroups.map(group => ({
@@ -296,15 +294,6 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
 
     handleNextOnPopup() {
         try {
-            const firstObjName = this.selectedGroupIds[0]?.ObjName;
-            const allSameObjName = this.selectedGroupIds.every(group => group.ObjName === firstObjName);
-            
-            if(!allSameObjName){
-                this.showToast('Error!', 'Please select groups with the same object name', 'error');
-                return;
-            }
-
-            this.updateTemplateOptions();
     
             this.popupHeader = 'Choose Template'
             this.popUpFirstPage = false;
@@ -347,7 +336,6 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
 
     handlePreviousOnPopup(){
         this.popupHeader = 'Choose Broadcast Groups';
-        this.selectedTemplate = '';
         this.popUpFirstPage = true;
         this.popUpSecondpage = false;
     }
@@ -388,6 +376,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
                 if(result == 'Success'){
                     this.showToast('Success', 'Broadcast sent successfully', 'success');
                     this.loadBroadcastGroups();
+                    this.handleCloseOnPopup();
                 } else {
                     this.showToast('Error', `Broadcast sent failed - ${result}`, 'error');
                 }

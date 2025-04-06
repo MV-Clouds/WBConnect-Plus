@@ -394,6 +394,9 @@ global without sharing class WhatsAppMessageBatch implements Database.Batchable<
             Http http = new Http();
             HttpResponse response = http.send(httpReq);
             Integer statusCode = response.getStatusCode();
+
+            System.debug('response: ' + response.getBody());
+            System.debug('statusCode: ' + statusCode);
             if(response != null && statusCode == 200){
                 String responseBody = response.getBody();
                 Map<String, Object> jsonMap = (Map<String, Object>)JSON.deserializeUntyped(responseBody);
@@ -413,3 +416,4 @@ global without sharing class WhatsAppMessageBatch implements Database.Batchable<
         }
     }
 }
+

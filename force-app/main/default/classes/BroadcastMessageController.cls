@@ -284,6 +284,16 @@ public without sharing class BroadcastMessageController {
         }
     } 
 
+
+    @AuraEnabled
+    public static List<Lead> getAllLeads() {
+        try {
+            return [SELECT Id, Name, Phone FROM Lead LIMIT 50000]; // Adjust fields and limits as needed
+        } catch (Exception e) {
+            throw new AuraHandledException('Error fetching leads: ' + e.getMessage());
+        }
+    }
+
     /*
     *********************************************************
     @description     : Create chat records and run batch class to send it at that time or schedule batch job if needed

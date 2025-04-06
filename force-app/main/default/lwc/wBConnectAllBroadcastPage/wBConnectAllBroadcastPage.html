@@ -153,8 +153,6 @@
                                                     <div class="">
                                                         <h3 class="slds-text-heading_small">{group.Name}</h3>
                                                         <p><strong>Members:</strong> {group.Count_of_Members__c}</p>
-                                                        <p><strong>Object of Group Members: </strong>
-                                                            {group.Object_Name__c}</p>
                                                         <p><strong>Description:</strong> {group.Description__c}</p>
                                                     </div>
                                                 </div>
@@ -164,11 +162,9 @@
                                 </div>
 
                                 <template if:true={filteredGroups.length}>
-                                    <div class="popUpFooter slds-text-align--center">
-                                        <lightning-button variant="brand-outline" onclick={handleCloseOnPopup}
-                                            label="Close" class="slds-m-left_x-small"></lightning-button>
-                                        <lightning-button variant="brand" label="Next" onclick={handleNextOnPopup}
-                                            class="slds-m-left_x-small" disabled={isNextDisabled}></lightning-button>
+                                    <div class="popUpFooter">
+                                        <button class="close-btn" onclick={handleCloseOnPopup}>Close</button>
+                                        <button class="save-btn" onclick={handleNextOnPopup} disabled={isNextDisabled}>Next</button>
                                     </div>
                                 </template>
 
@@ -191,13 +187,12 @@
                                     </lightning-combobox>
                                 </div>
                             </div>
-                            <div class="popUpFooter slds-text-align--center slds-p-bottom--large">
-                                <lightning-button variant="brand-outline" onclick={handlePreviousOnPopup}
-                                    label="Previous" class="slds-m-left_x-small"></lightning-button>
-                                <lightning-button variant="brand" label="Send" onclick={handleSendOnPopup}
-                                    class="slds-m-left_x-small"></lightning-button>
-                                <lightning-button variant="brand" label="Schedule" onclick={handleSchedulePopup}
-                                    class="slds-m-left_x-small"></lightning-button>
+                            <div class="popUpFooter">
+
+                                <button class="close-btn" onclick={handlePreviousOnPopup}>Previous</button>
+                                <button class="save-btn" onclick={handleSendOnPopup} >Send</button>
+                                <button class="save-btn" onclick={handleSchedulePopup} >Schedule</button>
+
                             </div>
                         </template>
                         <template if:true={popUpLastPage}>
@@ -207,11 +202,9 @@
                                     onchange={handleInputChange} class="slds-align_absolute-center"></lightning-input>
                             </div>
 
-                            <div class="popUpFooter slds-text-align_center slds-p-bottom_large">
-                                <lightning-button variant="brand-outline" onclick={handlePreviousLastpage}
-                                    label="Previous" class="slds-m-left_x-small"></lightning-button>
-                                <lightning-button variant="brand" label="Schedule and Send" onclick={handleSchedule}
-                                    class="slds-m-left_x-small"></lightning-button>
+                            <div class="popUpFooter">
+                                <button class="close-btn" onclick={handlePreviousLastpage}>Previous</button>
+                                <button class="save-btn" onclick={handleSchedule} >Schedule and Send</button>
                             </div>
                         </template>
                     </div>
