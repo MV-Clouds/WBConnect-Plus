@@ -1,5 +1,4 @@
 import { LightningElement, api, track, wire } from 'lwc';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import processBroadcastMessageWithObject from '@salesforce/apex/BroadcastMessageController.processBroadcastMessageWithObject';
 import getBroadcastGroupDetails from '@salesforce/apex/BroadcastMessageController.getBroadcastGroupDetails';
 import getAllLeads from '@salesforce/apex/BroadcastMessageController.getAllLeads';
@@ -121,7 +120,7 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
             }
             return pages;
         } catch (error) {
-            this.showToast('Error', 'Error in pageNumbers->' + error, 'error');
+            this.showMessageToast('Error', 'Error in pageNumbers->' + error, 'error');
             return null;
         }
     }
@@ -215,7 +214,7 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
             this.paginatedData = this.filteredData.slice(startIndex, endIndex);
             
         } catch (error) {
-            this.showToast('Error', 'Error updating shown data', 'error');
+            this.showMessageToast('Error', 'Error updating shown data', 'error');
         }
     }
 
@@ -232,7 +231,7 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
                 this.updateShownData();
             }
         }catch(error){
-            this.showToast('Error', 'Error handling previous button click', 'error');
+            this.showMessageToast('Error', 'Error handling previous button click', 'error');
         }
     }
 
@@ -249,7 +248,7 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
                 this.updateShownData();
             }
         }catch(error){
-            this.showToast('Error', 'Error handling next button click', 'error');
+            this.showMessageToast('Error', 'Error handling next button click', 'error');
         }
     }
 
@@ -267,7 +266,7 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
                 this.updateShownData();
             }
         }catch(error){
-            this.showToast('Error', 'Error handling page change', 'error');
+            this.showMessageToast('Error', 'Error handling page change', 'error');
         }
     }
 
@@ -350,7 +349,7 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
     handleModalOpen(){
 
         if(this.selectedRecords.size === 0){
-            this.showToast('Error', 'Please select at least one record', 'error');
+            this.showMessageToast('Error', 'Please select at least one record', 'error');
             return;
         }
 
@@ -359,7 +358,7 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
             const record = this.data.find(r => r.Id === recordId);
             return !record || !record.phone || record.phone.trim() === '';
         })) {
-            this.showToast('Error', 'One or more selected records have invalid or missing phone numbers', 'error');
+            this.showMessageToast('Error', 'One or more selected records have invalid or missing phone numbers', 'error');
             return;
         }
 
@@ -376,7 +375,7 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
 
     handleSave(){
         if(this.messageText.trim() === '' || this.broadcastGroupName.trim() === ''){            
-            this.showToast('Error', 'Please fill in all required fields', 'error');
+            this.showMessageToast('Error', 'Please fill in all required fields', 'error');
             return;
         }
 
@@ -404,14 +403,14 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
         // Call the Apex method
         processBroadcastMessageWithObject({ requestJson: JSON.stringify(messageData) })
         .then(() => {
-            this.showToast('Success', 'Broadcast group created successfully', 'success');
+            this.showMessageToast('Success', 'Broadcast group created successfully', 'success');
             this.closePopUp();
             this.selectedRecords.clear();
             this.updateShownData();
 
         })
         .catch(error => {
-            this.showToast('Error', error.body?.message || 'Failed to process broadcast', 'error');
+            this.showMessageToast('Error', error.body?.message || 'Failed to process broadcast', 'error');
         })
         .finally(() => {
             this.isLoading = false;
@@ -420,12 +419,14 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
         });;
     }
 
-    showToast(title, message, variant){
-        this.dispatchEvent(new ShowToastEvent({
+    showMessageToast(title, message, status){
+        const messageContainer = this.template.querySelector('c-message-popup')
+        messageContainer?.showMessageToast({
+            status: status,
             title: title,
-            message: message,
-            variant: variant
-        }));
+            message : message
+        });
     }
+
 
 }

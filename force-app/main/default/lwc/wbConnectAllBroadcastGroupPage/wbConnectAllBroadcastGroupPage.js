@@ -1,7 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import getBroadcastGroups from '@salesforce/apex/BroadcastMessageController.getBroadcastGroups';
 import deleteBroadcastGroup from '@salesforce/apex/BroadcastMessageController.deleteBroadcastGroup';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import editIcon from '@salesforce/resourceUrl/editIcon';
 import trashIcon from '@salesforce/resourceUrl/trashIcon';
 import emptyState from '@salesforce/resourceUrl/emptyState';
@@ -85,7 +84,7 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
             }
             return pages;
         } catch (error) {
-            this.showToast('Error', 'Error in pageNumbers->' + error, 'error');
+            this.showMessageToast('Error', 'Error in pageNumbers->' + error, 'error');
             return null;
         }
     }
@@ -114,7 +113,7 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
                 this.updateShownData();
             })
             .catch(() => {
-                this.showToast('Error', 'Error loading records', 'error');
+                this.showMessageToast('Error', 'Error loading records', 'error');
             })
             .finally(() => {
                 this.isLoading = false;
@@ -127,7 +126,7 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
             const endIndex = Math.min(startIndex + this.pageSize, this.totalItems);
             this.paginatedData = this.filteredData.slice(startIndex, endIndex);
         } catch (error) {
-            this.showToast('Error', 'Error updating shown data', 'error');
+            this.showMessageToast('Error', 'Error updating shown data', 'error');
         }
     }
 
@@ -141,7 +140,7 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
             
             this.updateShownData();
         } catch (error) {
-            this.showToast('Error', 'Error searching records', 'error');
+            this.showMessageToast('Error', 'Error searching records', 'error');
         }
     }
     
@@ -152,7 +151,7 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
                 this.updateShownData();
             }
         }catch(error){
-            this.showToast('Error', 'Error navigating pages', 'error');
+            this.showMessageToast('Error', 'Error navigating pages', 'error');
         }
     }
     
@@ -163,7 +162,7 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
                 this.updateShownData();
             }
         }catch(error){
-            this.showToast('Error', 'Error navigating pages', 'error');
+            this.showMessageToast('Error', 'Error navigating pages', 'error');
         }
     }
     
@@ -175,7 +174,7 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
                 this.updateShownData();
             }
         }catch(error){
-            this.showToast('Error', 'Error navigating pages', 'error');
+            this.showMessageToast('Error', 'Error navigating pages', 'error');
         }
     } 
 
@@ -193,7 +192,7 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
     
         deleteBroadcastGroup({ groupId: recordId })
             .then(() => {
-                this.showToast('Success', 'Broadcast Group deleted successfully', 'success');
+                this.showMessageToast('Success', 'Broadcast Group deleted successfully', 'success');
     
                 // Remove the deleted record from both lists
                 this.data = this.data.filter(item => item.Id !== recordId);
@@ -203,7 +202,7 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
                 this.updateShownData();
             })
             .catch(() => {
-                this.showToast('Error', 'Failed to delete Broadcast Group', 'error');
+                this.showMessageToast('Error', 'Failed to delete Broadcast Group', 'error');
             })
             .finally(() => {
                 this.isLoading = false; // Hide spinner
@@ -216,12 +215,12 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
         this.isNewBroadcast = true;
     }
 
-    showToast(title, message, variant) {
-        const event = new ShowToastEvent({
+    showMessageToast(title, message, status){
+        const messageContainer = this.template.querySelector('c-message-popup')
+        messageContainer?.showMessageToast({
+            status: status,
             title: title,
-            message: message,
-            variant: variant
+            message : message
         });
-        this.dispatchEvent(event);
     }
 }

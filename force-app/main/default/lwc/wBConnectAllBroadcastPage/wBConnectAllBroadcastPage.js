@@ -1,7 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import getBroadcastRecs from '@salesforce/apex/BroadcastMessageController.getBroadcastRecs';
 import getBroadcastGroups from '@salesforce/apex/BroadcastMessageController.getBroadcastGroups';
-import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import getTemplatesByObject from '@salesforce/apex/BroadcastMessageController.getTemplatesByObject';
 import createChatRecods from '@salesforce/apex/BroadcastMessageController.createChatRecods';
 import emptyState from '@salesforce/resourceUrl/emptyState';
@@ -92,7 +91,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
             }
             return pages;
         } catch (error) {
-            this.showToast('Error', 'Error in pageNumbers->' + error, 'error');
+            this.showMessageToast('Error', 'Error in pageNumbers->' + error, 'error');
             return null;
         }
     }
@@ -124,7 +123,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
                 this.updateTemplateOptions(); // Update options based on selected object
             })
             .catch(error => {
-                this.showToast('Error', 'Failed to load templates', 'error');
+                this.showMessageToast('Error', 'Failed to load templates', 'error');
             })
             .finally(() => {
                 this.isLoading = false;
@@ -171,7 +170,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
                 this.updateShownData();
             })
             .catch(error => {
-                this.showToast('Error', 'Failed to load broadcast groups', 'error');
+                this.showMessageToast('Error', 'Failed to load broadcast groups', 'error');
             })
             .finally(() => {
                 this.isLoading = false;
@@ -184,7 +183,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
             const endIndex = Math.min(startIndex + this.pageSize, this.totalItems);
             this.paginatedData = this.filteredData.slice(startIndex, endIndex);
         } catch (error) {
-            this.showToast('Error', 'Error updating shown data', 'error');
+            this.showMessageToast('Error', 'Error updating shown data', 'error');
         }
     }
 
@@ -198,7 +197,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
                 this.updateShownData();
             }
         } catch (error) {
-            this.showToast('Error', 'Error searching', 'error');
+            this.showMessageToast('Error', 'Error searching', 'error');
         }
     }
     
@@ -209,7 +208,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
                 this.updateShownData();
             }
         }catch(error){
-            this.showToast('Error', 'Error navigating to previous page', 'error');
+            this.showMessageToast('Error', 'Error navigating to previous page', 'error');
         }
     }
     
@@ -220,7 +219,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
                 this.updateShownData();
             }
         }catch(error){
-            this.showToast('Error', 'Error navigating pages', 'error');
+            this.showMessageToast('Error', 'Error navigating pages', 'error');
         }
     }
     
@@ -232,7 +231,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
                 this.updateShownData();
             }
         }catch(error){
-            this.showToast('Error', 'Error navigating pages', 'error');
+            this.showMessageToast('Error', 'Error navigating pages', 'error');
         }
     } 
     newBroadcast(){
@@ -245,7 +244,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
                 this.filteredGroups = [...this.broadcastGroups];
             })
             .catch(() => {
-                this.showToast('Error', 'Error fetching broadcast groups', 'error');
+                this.showMessageToast('Error', 'Error fetching broadcast groups', 'error');
             })
             .finally(() => {
                 this.isLoading = false;
@@ -291,7 +290,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
                 IsChecked: this.selectedGroupIds.some(selected => selected.Id === group.Id)
             }));
         } catch (error) {
-            this.showToast('Error', 'Error handling group selection', 'error');
+            this.showMessageToast('Error', 'Error handling group selection', 'error');
         }
     }
 
@@ -302,7 +301,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
             this.popUpFirstPage = false;
             this.popUpSecondpage = true;
         } catch (error) {
-            this.showToast('Error!', 'Please select template', 'error');
+            this.showMessageToast('Error!', 'Please select template', 'error');
         }
     }
 
@@ -346,7 +345,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
     handleSchedulePopup(){
 
         if(this.selectedTemplate === '' || this.selectedTemplate === null){
-            this.showToast('Error!', 'Please select template', 'error');
+            this.showMessageToast('Error!', 'Please select template', 'error');
             return;
         }
 
@@ -368,7 +367,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
     handleSchedule(){
 
         if(this.selectedDateTime === '' || this.selectedDateTime === null){
-            this.showToast('Error!', 'Please select date and time', 'error');
+            this.showMessageToast('Error!', 'Please select date and time', 'error');
             return;
         }        
 
@@ -377,15 +376,15 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
         createChatRecods({templateId: this.selectedTemplate, groupIds: grpIdList, isScheduled: true, timeOfMessage: this.selectedDateTime})
             .then(result => {
                 if(result == 'Success'){
-                    this.showToast('Success', 'Broadcast sent successfully', 'success');
+                    this.showMessageToast('Success', 'Broadcast sent successfully', 'success');
                     this.loadBroadcastGroups();
                     this.handleCloseOnPopup();
                 } else {
-                    this.showToast('Error', `Broadcast sent failed - ${result}`, 'error');
+                    this.showMessageToast('Error', `Broadcast sent failed - ${result}`, 'error');
                 }
             })
             .catch(error => {
-                this.showToast('Error', `Broadcast sent failed - ${error}`, 'error');
+                this.showMessageToast('Error', `Broadcast sent failed - ${error}`, 'error');
             })
             .finally(() => {
                 this.isLoading = false;
@@ -396,7 +395,7 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
     handleSendOnPopup(){
 
         if(this.selectedTemplate === '' || this.selectedTemplate === null){
-            this.showToast('Error!', 'Please select template', 'error');
+            this.showMessageToast('Error!', 'Please select template', 'error');
             return;
         }
 
@@ -406,22 +405,27 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
         createChatRecods({templateId: this.selectedTemplate, groupIds: grpIdList, isScheduled: false, timeOfMessage: ''})
             .then(result => {
                 if(result == 'Success'){
-                    this.showToast('Success', 'Broadcast sent successfully', 'success');
+                    this.showMessageToast('Success', 'Broadcast sent successfully', 'success');
                     this.loadBroadcastGroups();
                     this.handleCloseOnPopup();
                 } else {
-                    this.showToast('Error', `Broadcast sent failed - ${result}`, 'error');
+                    this.showMessageToast('Error', `Broadcast sent failed - ${result}`, 'error');
                 }
             })
             .catch(error => {
-                this.showToast('Error', `Broadcast sent failed - ${error}`, 'error');
+                this.showMessageToast('Error', `Broadcast sent failed - ${error}`, 'error');
             })
             .finally(() => {
                 this.isLoading = false;
             });
     }
 
-    showToast(title ,message, status){
-        this.dispatchEvent(new ShowToastEvent({title: title, message: message, variant: status}));
+    showMessageToast(title, message, status){
+        const messageContainer = this.template.querySelector('c-message-popup')
+        messageContainer?.showMessageToast({
+            status: status,
+            title: title,
+            message : message
+        });
     }
 }
