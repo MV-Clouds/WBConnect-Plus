@@ -3,6 +3,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import processBroadcastMessageWithObject from '@salesforce/apex/BroadcastMessageController.processBroadcastMessageWithObject';
 import getBroadcastGroupDetails from '@salesforce/apex/BroadcastMessageController.getBroadcastGroupDetails';
 import getAllLeads from '@salesforce/apex/BroadcastMessageController.getAllLeads';
+import emptyState from '@salesforce/resourceUrl/emptyState';
 export default class WbConnectBroadcastMessageComp extends LightningElement {
     @track data = [];
     @track filteredData = []; // filtered data based on search
@@ -18,6 +19,7 @@ export default class WbConnectBroadcastMessageComp extends LightningElement {
     @track broadcastGroupName = '';
     @track isCreateBroadcastComp = true;
     @track isAllBroadcastGroupPage = false;
+    @track emptyState = emptyState;
     
     @api broadcastGroupId;
 

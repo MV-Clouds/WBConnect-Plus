@@ -83,7 +83,12 @@
                 <!-- No Records Message -->
                 <template if:true={showNoRecordsMessage}>
                     <div class="no-records-message">
-                        No records to display.
+                        <div class="empty-state__content">
+                            <div class="empty-state__icon">
+                                <img src={emptyState} alt="" draggable="false">
+                            </div>
+                            <div class="empty-state__message">No Data Available to Show.</div>
+                        </div>
                     </div>
                 </template>
     
@@ -128,6 +133,14 @@
             <template if:true={isCreateBroadcastModalOpen}>
                 <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
                     <div class="slds-modal__container">
+
+                        <!-- Close Button -->
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            title="Close" onclick={closePopUp}>
+                            <lightning-icon icon-name="utility:close" alternative-text="Close" class="close-icon"
+                                size="small"></lightning-icon>
+                        </button>
+
                         <div class="slds-modal__content slds-p-around_medium modal-content" id="modal-content-id-2">
                             <div>
                                 <p class="modal-heading">{broadcastHeading}</p>

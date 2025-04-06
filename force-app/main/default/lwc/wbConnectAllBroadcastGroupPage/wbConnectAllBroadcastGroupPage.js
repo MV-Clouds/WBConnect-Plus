@@ -2,6 +2,10 @@ import { LightningElement, track } from 'lwc';
 import getBroadcastGroups from '@salesforce/apex/BroadcastMessageController.getBroadcastGroups';
 import deleteBroadcastGroup from '@salesforce/apex/BroadcastMessageController.deleteBroadcastGroup';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import editIcon from '@salesforce/resourceUrl/editIcon';
+import trashIcon from '@salesforce/resourceUrl/trashIcon';
+import emptyState from '@salesforce/resourceUrl/emptyState';
+
 export default class WbConnectAllBroadcastGroupPage extends LightningElement {
     @track data = [];
     @track filteredData = [];
@@ -12,6 +16,10 @@ export default class WbConnectAllBroadcastGroupPage extends LightningElement {
     @track isLoading = false;
     @track isNewBroadcast = false;
     @track isAllGroupPage = true;
+
+    @track editIcon = editIcon;
+    @track trashIcon = trashIcon;
+    @track emptyState = emptyState;
 
     broadcastGroupId = null;
 

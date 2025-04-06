@@ -4,6 +4,7 @@ import getBroadcastGroups from '@salesforce/apex/BroadcastMessageController.getB
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import getTemplatesByObject from '@salesforce/apex/BroadcastMessageController.getTemplatesByObject';
 import createChatRecods from '@salesforce/apex/BroadcastMessageController.createChatRecods';
+import emptyState from '@salesforce/resourceUrl/emptyState';
 
 export default class WBConnectAllBroadcastPage extends LightningElement {
     @track data = [];
@@ -26,6 +27,8 @@ export default class WBConnectAllBroadcastPage extends LightningElement {
     popUpSecondpage = false;
     popUpLastPage = false;
     popupHeader = 'Choose Broadcast Groups';
+
+    @track emptyState = emptyState;
 
     get showNoRecordsMessage() {
         return this.filteredData.length === 0;

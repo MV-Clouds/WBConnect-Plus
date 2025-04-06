@@ -52,10 +52,10 @@
                                         <td>{row.Description__c}</td>
                                         <td class="tableData tablebtns" data-label="Actions">
                                             <button class="action-buttons">
-                                                <img src="/resource/editIcon" class="action edit" alt="edit" data-id={row.Id} onclick={handleEditGroup} >
+                                                <img src={editIcon} class="action edit" alt="edit" data-id={row.Id} onclick={handleEditGroup} >
                                             </button>
                                             <button class="action-buttons">
-                                                <img src="/resource/trashIcon" class="action trash" alt="delete" data-id={row.Id} onclick={handleDeleteGroup}>
+                                                <img src={trashIcon} class="action trash" alt="delete" data-id={row.Id} onclick={handleDeleteGroup}>
                                             </button>
                                         </td>
                                     </tr>
@@ -71,7 +71,7 @@
                         <div class="empty-state">
                             <div class="empty-state__content">
                                 <div class="empty-state__icon">
-                                    <img src="/resource/emptyState" alt="" draggable="false">
+                                    <img src={emptyState} alt="" draggable="false">
                                 </div>
                                 <div class="empty-state__message">No Data Available to Show.</div>
                             </div>
