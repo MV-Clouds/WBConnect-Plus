@@ -3,6 +3,7 @@ import logoImg from '@salesforce/resourceUrl/WBConnectplusLogo'; // Logo image
 import Login_BG from '@salesforce/resourceUrl/Login_BG'; // Logo image
 import LoginIllustrationImg from '@salesforce/resourceUrl/LoginIllustration'; // Logo image
 import poweredByMVCImg from '@salesforce/resourceUrl/poweredByMVC'; // Logo image
+import login from '@salesforce/apex/LoginController.login';
 
 export default class Wbc_loginpage extends LightningElement {
     @track email;
@@ -11,7 +12,7 @@ export default class Wbc_loginpage extends LightningElement {
     @track isLoading = false;
 
     // Public properties configurable in Experience Builder
-    @api startUrl = '/'; // Default redirect location after login
+    @api startUrl = '/wbconnectplus/'; // Default redirect location after login
     @api forgotPasswordUrl = '/ForgotPassword'; // Default Forgot Password page URL
     @api selfRegisterUrl = '/SelfRegister'; // Default Self Registration page URL
     logoUrl = logoImg;
@@ -26,7 +27,6 @@ export default class Wbc_loginpage extends LightningElement {
     get selfRegisterUrlComputed() {
         return this.selfRegisterUrl && this.selfRegisterUrl.startsWith('/') ? this.selfRegisterUrl : '/SelfRegister';
     }
-
 
     handleEmailChange(event) {
         this.email = event.target.value;
@@ -57,33 +57,18 @@ export default class Wbc_loginpage extends LightningElement {
         this.isLoading = true;
         this.error = undefined;
 
-        // Use the startUrl configured in Experience Builder
-        const finalStartUrl = this.startUrl && this.startUrl.startsWith('/') ? this.startUrl : '/';
-
-        login({
-            username: this.email,
-            password: this.password,
-            startUrl: finalStartUrl // Pass the desired relative start URL
-        })
-        .then(result => {
-            console.log('Login successful, redirecting to:', result);
-            // Redirect the user using client-side navigation to the relative path
-            // window.location.href = result; // This causes full page reload
-            // Better: Use relative path navigation if possible
-            // If result is null/undefined, maybe default to '/'
-            const destinationUrl = result || finalStartUrl;
-            window.location.pathname = destinationUrl; // Navigate to relative path
-
-            
-        })
-        .catch(error => {
-            console.error('Login Error:', error);
-            this.error = this.getErrorMessage(error);
-            this.isLoading = false;
-        });
+        login({ username: this.email, password: this.password })
+            .then(result => {
+                const destinationUrl = result || this.startUrl;
+                window.location.href = destinationUrl;
+            })
+            .catch(error => {
+                console.error('Login Error:', error);
+                this.error = this.getErrorMessage(error);
+                this.isLoading = false;
+            });
     }
 
-     
     getErrorMessage(error) {
         let message = 'Unknown error';
         

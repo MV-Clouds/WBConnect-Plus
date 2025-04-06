@@ -1,0 +1,120 @@
+<template>
+    <div class="main-container" style={backgroundStyle}>
+        <!-- <div class="slds-grid slds-wrap slds-align_center">
+            <img src={logoUrl} alt="WBConnect Plus" class="logo"/>
+        </div> -->
+        <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-around_small">
+            <!-- Left Side: Logo -->
+            <div class="slds-col slds-size_1-of-2">
+                <img src={logoUrl} alt="WBConnect Plus" class="logo" />
+            </div>
+        
+            <!-- Right Side: Logout Link -->
+            <div class="slds-col slds-size_1-of-2 slds-text-align_right">
+                <a href={loginUrl} target="_self">Logout</a>
+            </div>
+        </div>
+        
+        <div class="left-container">
+            <div class="left-side-bar">
+                <div class='barchild' data-name="Home" id="tab-1" data-title="tab-1" onclick={handleActive}>
+                    <div class="home_icon sidebar hometab">
+                        <div class="image-tab tab-1"><img draggable="false" src={homeIcon} alt=""></div>
+                    </div>
+                    <div class="help_text">
+                        <p style="font-size:12px; margin-bottom:15%;" title="Home">Home</p>
+                    </div>
+                </div>
+                <div class='barchild' data-name="Configuration" id="tab-7" data-title="tab-7" onclick={handleActive}>
+                    <div class="preview_icon sidebar">
+                        <div class="image-tab tab-7"><img draggable="false" src={configurationIcon} alt=""></div>
+                    </div>
+                    <div class="help_text slds-truncate">
+                        <p style="font-size:12px; margin-bottom:15%;" title="Configuration">Configuration</p>
+                    </div>
+                </div>
+                <div class='barchild' data-name="ChatWindow" id="tab-4" data-title="tab-4" onclick={handleActive}>
+                    <div class="design_icon sidebar">
+                        <div class="image-tab tab-3"><img draggable="false" src={chatWindowIcon} alt=""></div>
+                    </div>
+                    <div class="help_text">
+                        <p style="font-size:12px; margin-bottom:15%;" title="Chat Window">Chat Window</p>
+                    </div>
+                </div>
+                <div class='barchild' data-name="Template" id="tab-3" data-title="tab-3" onclick={handleActive}>
+                    <div class="design_icon sidebar">
+                        <div class="image-tab tab-3"><img draggable="false" src={templateBuilderIcon} alt=""></div>
+                    </div>
+                    <div class="help_text">
+                        <p style="font-size:12px; margin-bottom:15%;" title="Template">Template</p>
+                    </div>
+                </div>
+                <div class='barchild' data-name="Broadcast" id="tab-5" data-title="tab-5" onclick={handleActive}>
+                    <div class="notification_icon sidebar">
+                        <div class="image-tab tab-4"><img draggable="false" src={broadcastIcon} alt=""></div>
+                    </div>
+                    <div class="help_text">
+                        <p style="font-size:12px; margin-bottom:15%;" title="Broadcast">Broadcast</p>
+                    </div>
+                </div>
+                <div class='barchild' data-name="BroadcastGroups" id="tab-6" data-title="tab-6" onclick={handleActive}>
+                    <div class="notification_icon sidebar">
+                        <div class="image-tab tab-4"><img draggable="false" src={broadcastIcon} alt=""></div>
+                    </div>
+                    <div class="help_text">
+                        <p style="font-size:12px; margin-bottom:15%;" title="Broadcast Groups">Broadcast Groups</p>
+                    </div>
+                </div>
+                <div class='barchild' data-name="Automation" id="tab-2" data-title="tab-2" onclick={handleActive}>
+                    <div class="field_icon sidebar fieldtab">
+                        <div class="image-tab tab-2"><img draggable="false" src={automationIcon} alt=""></div>
+                    </div>
+                    <div class="help_text">
+                        <p style="font-size:12px; margin-bottom:15%;" title="Automation">Automation</p>
+                    </div>
+                </div>
+                <!-- <div class='barchild' data-name="ImportData" id="tab-8" data-title="tab-8" onclick={handleActive}>
+                    <div class="publish_icon sidebar">
+                        <div class="image-tab tab-8"><img draggable="false" src={importDataIcon} alt=""></div>
+                    </div>
+                    <div class="help_text">
+                        <p style="font-size:12px; margin-bottom:15%;">Import Data</p>
+                    </div>
+                </div> -->
+            </div>
+            <div class="right-div">
+                <template if:true={isHome}>
+                    <p>Welcome to Home</p>
+                </template>
+    
+                <template if:true={isAutomation}>
+                    <p>Automation Configuration</p>
+                </template>
+    
+                <template if:true={isTemplate}>
+                    <p>Template Settings</p>
+                </template>
+
+                <template if:true={isChatWindow}>
+                    <c-chat-window></c-chat-window>
+                </template>
+    
+                <template if:true={isBroadcast}>
+                    <c-w-b-connect-all-broadcast-page></c-w-b-connect-all-broadcast-page>
+                </template>
+
+                <template if:true={isBroadcastGroups}>
+                    <c-wb-connect-all-broadcast-group-page></c-wb-connect-all-broadcast-group-page>
+                </template>
+    
+                <template if:true={isConfiguration}>
+                    <p>Configuration Content</p>
+                </template>
+    
+                <!-- <template if:true={isImportData}>
+                    <p>ImportData Settings</p>
+                </template> -->
+            </div>
+        </div>
+    </div>
+</template>

@@ -5,6 +5,7 @@ import forgotPassIllustrationImg from '@salesforce/resourceUrl/forgotPassIllustr
 import verifyCodeillustrationImg from '@salesforce/resourceUrl/verifyCodeillustration';
 import setPasswordIllustrationImg from '@salesforce/resourceUrl/setPasswordIllustration';
 import poweredByMVCImg from '@salesforce/resourceUrl/poweredByMVC';
+import forgotPassword from '@salesforce/apex/LoginController.forgotPassword';
 
 export default class Wbc_forgotpassword extends LightningElement {
     @track email;
@@ -12,7 +13,9 @@ export default class Wbc_forgotpassword extends LightningElement {
     @track newpassword;
     @track repassword;
     @track error;
+    @track message;
     @track isLoading = false;
+    isDisbaled = false;
     isEmailPage = true;
     isVerifyCodePage = false;
     isSetPasswordPage = false;
@@ -62,31 +65,28 @@ export default class Wbc_forgotpassword extends LightningElement {
         }
 
         this.isLoading = true;
+        this.isDisbaled = true;
         this.error = undefined;
 
-        // Use the startUrl configured in Experience Builder
-        const finalStartUrl = this.startUrl && this.startUrl.startsWith('/') ? this.startUrl : '/';
-
-        getVerificationCode({
-            username: this.email,
-            startUrl: finalStartUrl // Pass the desired relative start URL
-        })
-        .then(result => {
-            console.log('Login successful, redirecting to:', result);
-            // Redirect the user using client-side navigation to the relative path
-            // window.location.href = result; // This causes full page reload
-            // Better: Use relative path navigation if possible
-            // If result is null/undefined, maybe default to '/'
-            const destinationUrl = result || finalStartUrl;
-            window.location.pathname = destinationUrl; // Navigate to relative path
-
-            
-        })
-        .catch(error => {
-            console.error('Login Error:', error);
-            this.error = this.getErrorMessage(error);
-            this.isLoading = false;
-        });
+        forgotPassword({ usernameval: this.email })
+            .then(result => {
+                console.log(result);
+                this.isLoading = false;
+                this.isDisbaled = false;
+                if (result[0] === 'Success') {
+                    this.message = 'You will receive an email with a password reset link. Please check your inbox.';
+                    this.error = null; // clear any previous error
+                } else if (result[0] === 'Error') {
+                    this.error = result[1]; // Show specific error from Apex
+                    this.message = null;   // clear success message
+                }
+            })
+            .catch(error => {
+                console.error('Forgot Password Error:', error);
+                this.error = this.getErrorMessage(error);
+                this.isLoading = false;
+                this.isDisbaled = false;
+            });
     }
 
     handleVerify(event){
