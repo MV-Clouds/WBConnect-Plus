@@ -3,11 +3,18 @@
 }
 .main {
     padding: 1%;
-    background-image: url('/resource/wbiTemplateBg');
+    /* background-image: url('/resource/wbiTemplateBg'); */
     background-repeat: no-repeat;
     background-size: cover;
     border-radius: 5px;
+
 }
+
+.main lightning-combobox{
+    
+    --dxp-g-spacing-medium : 0 !important;
+}
+
 .preview-container{
     display: grid;
     justify-content: center;
@@ -18,7 +25,7 @@
     border-radius: 5px;
     /* height: -webkit-fill-available; */
     width: 60rem;
-    background-image: url('/resource/wbiTemplateBg');
+    /* background-image: url('/resource/wbiTemplateBg'); */
 }
 
 /* Custom scrollbar styles for Webkit browsers */
@@ -752,7 +759,7 @@ textarea {
     padding-bottom: 9%;
     padding-right: 5%;
     border-radius: 3px;
-    background-image: url('/resource/wbiBg');
+    /* background-image: url('/resource/wbiBg'); */
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -1363,7 +1370,7 @@ textarea {
 }
 
 .templatePreview {
-    background: url('/resource/wbiBg');
+    /* background: url('/resource/wbiBg'); */
     background-color: #EBE8E2;
     height: 28rem;
     width: 19rem;

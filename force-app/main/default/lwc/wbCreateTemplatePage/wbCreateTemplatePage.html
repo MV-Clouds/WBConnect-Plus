@@ -17,7 +17,7 @@
 
             <!-- Template options screen -->
             <template lwc:if={isStage1}>
-                <div class="slds-theme_default main">
+                <div class="slds-theme_default main" style={getWBConnectBackground}>
 
                     <div class="texttemp">
                         <p class="templatetxt2">Create Template</p>
@@ -171,7 +171,7 @@
                                     </div>
                                     <div class="templatePreview">
                                         <div class="slds-box slds-theme_default previewchild chat-bubble">
-                                            <!-- <img class="image" src="/resource/marketingFlowPreivew" alt=""> -->
+                                            <!-- <img class="image" src=marketingFlowPreivew" alt=""> -->
                                             <div class="paratext">
                                                 <p class="hey">Make dinner with Jaspher Market</p>
                                                 <p class="code">Our free online course will be available soon! Sign up today to reserve a spot</p>
@@ -196,7 +196,7 @@
                                     </div>
                                     <div class="templatePreview">
                                         <div class="slds-box slds-theme_default previewchild chat-bubble">
-                                            <!-- <img class="image" src="/resource/marketingFlowPreivew" alt=""> -->
+                                            <!-- <img class="image" src=marketingFlowPreivew" alt=""> -->
                                             <div class="paratext">
                                                 <p class="hey">We have delivered your order!</p>
                                                 <p class="code">Your feedback ensures we continually improve. Please share your thoughts on your recent order</p>
@@ -221,7 +221,7 @@
                                     </div>
                                     <div class="templatePreview">
                                         <div class="slds-box slds-theme_default previewchild chat-bubble">
-                                            <img class="image" src="/resource/previewImage" alt="">
+                                            <img class="image" src={previewImage} alt="">
                                             <div class="paratext">
                                                 <p class="hey">Hey there! Check out our fresh groceries now!</p>
                                                 <p class="code">Use code <b>HEALTH</b> to get additional 10% off on your entire
@@ -230,9 +230,9 @@
                                             </div>
                                         </div>
                                         <div class="codelink">
-                                            <p class="shoplink"> <img height="16px" width="16px" src="/resource/redirect"
+                                            <p class="shoplink"> <img height="16px" width="16px" src={redirect}
                                                     alt=""> Shop now</p>
-                                            <p class="copycode"> <img height="16px" width="16px" src="/resource/copy"
+                                            <p class="copycode"> <img height="16px" width="16px" src={copy}
                                                     alt=""> Copy code</p>
                                         </div>
                                     </div>
@@ -312,7 +312,7 @@
 
             <!--  template screen -->
             <template lwc:if={isStage2}>
-                <div class="slds-theme_default main">
+                <div class="slds-theme_default main" style={getWBConnectBackground}>
                     <!-- <div class="slds-box slds-theme_default texttemp"> -->
                     <template if:true={isNewTemplate}>
                         <div class="texttemp">
@@ -367,7 +367,7 @@
                                         <div class="chooseDoc">
                                             <div class="custom-upload-button" onclick={openModal}>
                                                 <label class="upload-label">
-                                                    <img src="/resource/uploadDocIcon" alt="Upload Icon" class="upload-icon" />
+                                                    <img src={uploadDocIcon} alt="Upload Icon" class="upload-icon" />
                                                     <template if:true={NoFileSelected}>
                                                         <span>Choose Flow</span>
                                                     </template>
@@ -437,7 +437,7 @@
                                                         <p class="uploadlabel">Image</p>
                                                         <div class="custom-upload-button">
                                                             <label class="upload-label">
-                                                                <img src="/resource/uploadImgIcon" alt="Upload Icon"
+                                                                <img src={uploadImgIcon} alt="Upload Icon"
                                                                     class="upload-icon" />
                                                                 <template if:true={NoFileSelected}>
                                                                     <span>Choose JPG or PNG file</span>
@@ -464,7 +464,7 @@
                                                         <p class="uploadlabel">Video</p>
                                                         <div class="custom-upload-button">
                                                             <label class="upload-label">
-                                                                <img src="/resource/uploadvideoIcon" alt="Upload Icon"
+                                                                <img src={uploadvideoIcon} alt="Upload Icon"
                                                                     class="upload-icon" />
                                                                 <template if:true={NoFileSelected}>
                                                                     <span>Choose MP4 file</span>
@@ -490,7 +490,7 @@
                                                         <p class="uploadlabel">Document</p>
                                                         <div class="custom-upload-button">
                                                             <label class="upload-label">
-                                                                <img src="/resource/uploadDocIcon" alt="Upload Icon"
+                                                                <img src={uploadDocIcon} alt="Upload Icon"
                                                                     class="upload-icon" />
                                                                 <template if:true={NoFileSelected}>
                                                                     <span>Choose PDF file</span>
@@ -618,7 +618,7 @@
                                         <div class="inner-rich">
                                             <div class="rich-icon">
                                                 <button class="toolbar-button" onclick={handleEmoji}>
-                                                    <img src="/resource/wbSmileIcon" class="custom-icon" />
+                                                    <img src={wbSmileIcon} class="custom-icon" />
                                                 </button>
                                                 <template for:each={toolbarButtonsWithClasses} for:item="button">
                                                     <button key={button.title} class={button.classes}
@@ -1253,11 +1253,11 @@
                             </div>
                         </div>
                         <div class="creattempdiv3">
-                                <div class="slds-box slds-theme_default templatePreviewmain1">
+                                <div class="slds-box slds-theme_default templatePreviewmain1" style={getwbiBg}>
                                     <div class="templateheadWP">
                                         <p class="templatetextWP"><b>Template Preview</b></p>
                                     </div>
-                                    <div class="PreviewtemplateWP">
+                                    <div class="PreviewtemplateWP" style={getwbiBg}>
 
                                      
                                         <div class="slds-box slds-theme_default templatepreviewchildWP chatWP-bubble">

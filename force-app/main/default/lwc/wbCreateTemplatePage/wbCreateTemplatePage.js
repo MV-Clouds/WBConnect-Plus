@@ -32,7 +32,16 @@ import getDynamicObjectData from '@salesforce/apex/WBTemplateController.getDynam
 import tempLocationIcon from '@salesforce/resourceUrl/tempLocationIcon';
 import tempVideoIcon from '@salesforce/resourceUrl/tempVideoIcon';
 import imageUploadPreview from '@salesforce/resourceUrl/imageUploadPreview';
+import previewImage  from '@salesforce/resourceUrl/previewImage';
+import redirect from '@salesforce/resourceUrl/redirect';
+import copy from '@salesforce/resourceUrl/copy';
+import uploadDocIcon from '@salesforce/resourceUrl/uploadDocIcon';
+import uploadImgIcon from '@salesforce/resourceUrl/uploadImgIcon';
+import uploadvideoIcon from '@salesforce/resourceUrl/uploadvideoIcon';
+import wbSmileIcon from '@salesforce/resourceUrl/wbSmileIcon';
 import docUploadPreview from '@salesforce/resourceUrl/documentPreviewIcon';
+import wbiBg from '@salesforce/resourceUrl/wbiBg';
+import WBConnectBackground from '@salesforce/resourceUrl/WBConnectBackground';
 import NoPreviewAvailable from '@salesforce/resourceUrl/NoPreviewAvailable';
 import uploadFile from '@salesforce/apex/FileUploaderController.uploadFile';
 import deleteFile from '@salesforce/apex/FileUploaderController.deleteFile';
@@ -50,6 +59,21 @@ export default class WbCreateTemplatePage extends LightningElement {
     maxPackTxt=224;
     maxHashTxt=11;
     _edittemplateid;
+
+    // resourceImport
+
+    previewImage = previewImage;
+    redirect = redirect;
+    copy = copy;
+    uploadDocIcon = uploadDocIcon;
+    uploadImgIcon = uploadImgIcon;
+    uploadvideoIcon = uploadvideoIcon;
+    uploadDocIcon = uploadDocIcon;
+    wbSmileIcon = wbSmileIcon;
+    wbiBg = wbiBg;
+    WBConnectBackground = WBConnectBackground;
+
+
 
     @track isNewTemplate=true;
     @track isEditTemplate=false;
@@ -230,6 +254,16 @@ export default class WbCreateTemplatePage extends LightningElement {
             { label: '5 minutes', value: '5 minutes' },
             { label: '10 minutes', value: '10 minutes' }
         ];
+    }
+
+    get getwbiBg(){
+        return `background-image: url(${this.wbiBg});`;
+
+    }
+
+
+    get getWBConnectBackground(){
+        return `background-image: url(${this.WBConnectBackground});`;
     }
 
     openModal() {

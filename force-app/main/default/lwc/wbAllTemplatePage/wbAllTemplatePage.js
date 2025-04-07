@@ -19,7 +19,12 @@ import deleteTemplete from '@salesforce/apex/WBTemplateController.deleteTemplete
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import {loadStyle} from 'lightning/platformResourceLoader';
 import wbPreviewTemplateStyle from '@salesforce/resourceUrl/wbPreviewTemplateStyle';
+import previewIcon from '@salesforce/resourceUrl/previewIcon';
+import editIcon from '@salesforce/resourceUrl/editIcon';
+import trashIcon from '@salesforce/resourceUrl/trashIcon';
+import WBConnectBackground from '@salesforce/resourceUrl/WBConnectBackground';
 import { subscribe, unsubscribe, onError } from 'lightning/empApi';
+
 
 export default class WbAllTemplatePage extends LightningElement {
     @track isTemplateVisible = true;
@@ -39,6 +44,10 @@ export default class WbAllTemplatePage extends LightningElement {
     @track editTemplateId='';
     subscription = null;
     channelName = '/event/Template_Update__e';
+    previewIcon = previewIcon;
+    editIcon = editIcon;
+    trashIcon = trashIcon;
+    WBConnectBackground = WBConnectBackground;
 
     @wire(getCategoryAndStatusPicklistValues)
     wiredCategoryAndStatus({ error, data }) {
@@ -59,6 +68,10 @@ export default class WbAllTemplatePage extends LightningElement {
     // }
     get actionButtonClass(){
         return 'custom-button cus-btns' ;
+    }
+
+    get getWBConnectBackground(){
+        return `background-image: url(${this.WBConnectBackground});`;
     }
 
     get timePeriodOptions() {

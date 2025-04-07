@@ -44,7 +44,7 @@
 }
 
 .templateContent3::-webkit-scrollbar-thumb {
-    background-color: #0098e9; 
+    background-color: #1DAE3D; 
     border-radius: 6px; 
     border-left: 2px solid white;
 }
@@ -55,7 +55,7 @@
 }
 
 .templateContent3::-webkit-scrollbar-thumb:hover {
-    background-color: #03a8ff;
+    background-color: #1DAE3D;
 }
 
 .creattempdiv3 {
@@ -134,7 +134,7 @@
     font-weight: 500;
     color: white;
     padding: 0.4rem;
-    background: #0077B6;
+    background: #1DAE3D;
 }
 .body{
     font-size: 13px;
@@ -185,7 +185,7 @@ input{
     border: none;
     color: white;
     font-size: 14px;
-    background-color: #0176D3;
+    background-color: #1DAE3D;
     cursor: pointer;
 }
 
