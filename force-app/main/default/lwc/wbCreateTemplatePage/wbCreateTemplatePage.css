@@ -611,7 +611,7 @@ textarea {
 }
 
 .uploadlabel {
-    font-size: larger;
+    font-size: large;
 }
 
 .quicktext {
@@ -712,7 +712,7 @@ textarea {
 .TextHeading {
     margin-bottom: 2%;
     color: black;
-    font-size: larger;
+    /* font-size: larger; */
     font-weight: 700;
 }
 
@@ -769,7 +769,7 @@ textarea {
 
 .TextHeadingWP {
     color: black;
-    font-size: larger;
+    /* font-size: larger; */
     font-weight: 700;
     word-wrap: break-word;  
     overflow-wrap: break-word; 
@@ -1088,7 +1088,8 @@ textarea {
     font-weight: 600;
     padding: 8px 0;
     font-size: 15px;
-    color: rgba(0, 119, 182, 1);
+    /* color: rgba(0, 119, 182, 1); */
+    color : #1DAE3D;
     margin-top: 8px;
     padding-left: 10px;
 }
@@ -1110,8 +1111,9 @@ textarea {
 .dropdown-section-header {
     font-weight: 600;
     padding: 8px 0;
-    font-size: 15px;
-    color: rgba(0, 119, 182, 1);
+    font-size: 15px;    
+    /* color: rgba(0, 119, 182, 1); */
+    color: #1DAE3D;
     border-top: 1px solid #dcdcdc;
     margin-top: 8px;
     padding-left: 10px;
@@ -1287,7 +1289,7 @@ textarea {
     }
 }
 
-
+/* 
 
 .active-tab {
     background-color: #60a7e6;
@@ -1296,7 +1298,7 @@ textarea {
 
 .active-tab svg {
     fill: white;
-}
+} */
 
 .litag {
     display: flex;
@@ -1312,12 +1314,14 @@ textarea {
     font-size: large;
 }
 
+
 .radiodescription {
     margin-left: 1.5%;
 }
 
 .txtwithlabel {
     width: 100%;
+    margin-left: 27px;
 }
 
 .parentSetupTemplate{
@@ -1397,17 +1401,17 @@ textarea {
 .hey {
     margin-bottom: 2%;
     color: black;
-    font-size: larger;
+    /* font-size: larger; */
 }
 
 .heytext {
     color: black;
-    font-size: larger;
+    /* font-size: larger; */
 }
 
 .code {
     color: black;
-    font-size: larger;
+    /* font-size: larger; */
 }
 
 .codelink {
@@ -1436,7 +1440,7 @@ textarea {
     border-radius: 5px;
     padding: 2%;
     margin:6px;
-    font-size: larger;
+    /* font-size: larger; */
     background-color: white;
 }
 
@@ -1527,7 +1531,7 @@ textarea {
 }
 
 .description {
-    margin-left: 32px;
+    margin-left: 3px;
     font-size: 0.85rem;
     color: black;
 }
@@ -1545,6 +1549,7 @@ textarea {
 .radio-label {
     color: black;
     font-size: 15px;
+    /* margin-left: 20px; */
 }
 
 
@@ -1552,7 +1557,7 @@ textarea {
     display: flex;
     padding: 1rem;
     background: #f3f3f3;
-    margin-left: 1.7rem;
+    margin-left: 2.7rem;
     border-radius: 5px;
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
@@ -1621,15 +1626,6 @@ textarea {
     margin-top: 1rem;
 }
 
-.appbtn {
-    width: 15%;
-    padding: 0.4rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-color: rgb(201, 199, 197);
-    margin-left: 0;
-    margin-top: 1.5rem;
-}
 
 .typeaction,
 .btntxt,
@@ -1682,6 +1678,7 @@ textarea {
 }
 
 
+
 .appbtn {
     width: 15%;
     padding: 0.4rem;
@@ -1690,6 +1687,16 @@ textarea {
     border-color: rgb(201, 199, 197);
     margin-left: 0;
     margin-top: 1.5rem;
+    color: white;
+    background-color: #1DAE3D;
+    border-radius: 12px;
+}
+
+
+.appbtn:hover {
+    background-color: white;
+    color: #1DAE3D;
+    border-color: #1DAE3D;
 }
 
 
@@ -1805,4 +1812,92 @@ textarea {
     margin-top: 390px;
     margin-left: 190px;
     border: none;
+}
+
+
+.section-tab-li {
+    padding: 0.3rem;
+}
+
+
+.slds-button{
+    /* font-size: 1.5vw;  */
+    color: #1DAE3D;
+}
+
+
+
+
+
+/* Optional styling override if needed */
+.slds-button.active-tab,
+.section-tab-li.slds-button_brand {
+    font-weight: bold;
+    /* border-bottom: 2px solid #1DAE3D; Salesforce blue */
+    background-color: #1DAE3D;
+    color: white;
+}
+
+.section-tab-li:focus {
+    outline: none;
+    box-shadow: none;
+    /* border: none; */
+}
+
+.slds-button-group{
+    width: 100%;
+}
+
+.slds-radio [type=radio]:checked+.slds-radio_faux:after{
+    background-color: #1DAE3D;
+}
+
+ .slds-radio [type=radio]:checked+.slds-radio_faux{
+    border-color: #1DAE3D;
+}
+
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .slider {
+    background-color: #1DAE3D;
+}
+
+.toggle-switch input:checked + .slider:before {
+    transform: translateX(26px);
 }

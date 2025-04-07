@@ -13,118 +13,70 @@
                     <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
                 </div>
             </template>
-            <div class="slds-grid slds-grid_vertical">
-                <div class="heading">
-                    <p class="txt">Message Template</p>
-                </div>
-                <div class="filterparent">
-                    <div class="filterdiv">
+           
+            <div class="heading">
+
+                <div class="left-align">Message Template</div>
+    
+                <div class="right-align">
+                    <div class="input-div">
                         <lightning-input variant="label-hidden" class="filter search-div" name="searchInput" type="search" placeholder="Search Name"
                             onchange={handleChange}></lightning-input>
-                        <div class="icon" onclick={toggleFilterVisibility}>
-                            <img src="/resource/filterIcon" alt="filter">
-                        </div>
-                        <div class={filterClass}>
-                            <div class="custom-select">
-                                <select name="category" class="filter filter-dropdown" value={categoryValue} onchange={handleChange}>
-                                    <template for:each={categoryOptions} for:item="option">
-                                        <option key={option.value} value={option.value} class="filter-option">{option.label}</option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="custom-select">
-                                <select name="status" class="filter filter-dropdown" value={statusValues} onchange={handleChange}>
-                                    <template for:each={statusOptions} for:item="option">
-                                        <option key={option.value} value={option.value} class="filter-option">{option.label}</option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="custom-select">
-                                <select name="timePeriod" class="filter filter-dropdown" value={timePeriodValue} onchange={handleChange}>
-                                    <template for:each={timePeriodOptions} for:item="option">
-                                        <option key={option.value} value={option.value} class="filter-option">{option.label}</option>
-                                    </template>
-                                </select>
-                            </div>                                
-                        </div>
                     </div>
+    
                     <div class="btns">
-                        <button class={actionButtonClass} onclick={showCreateTemplate}>
-                            <lightning-icon icon-name="utility:add" alternative-text="Add" size="x-small" class="left-icon"></lightning-icon>
-                            <span>Create Template</span>
+                        <button class="custom-button" onclick={showCreateTemplate}>
+                            <lightning-icon icon-name="utility:add" alternative-text="Add" size="x-small"
+                                class="left-icon"></lightning-icon>
+                            <span>New Broadcast</span>
                         </button>
                     </div>
                 </div>
             </div>
 
+            
             <div class="table-container">
-                <table class="slds-table">
-                    <thead>
-                        <tr class="tablerow">
-                            <th class="tableHead" scope="col">
-                                <div class="slds-truncate">No.</div>
-                            </th>
-                            <th class="tableHead" scope="col">
-                                <div class="slds-truncate">Template Name</div>
-                            </th>
-                            <th class="tableHead" scope="col">
-                                <div class="slds-truncate">Category</div>
-                            </th>
-                            <th class="tableHead" scope="col">
-                                <div class="slds-truncate">Language</div>
-                            </th>
-                            <th class="tableHead" scope="col">
-                                <div class="slds-truncate">Status</div>
-                            </th>
-                            <th class="tableHead" scope="col">
-                                <div class="slds-truncate">Actions</div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template if:true={allRecords.length}>
-                            <template for:each={filteredRecords} for:item="record">
-                                <tr class="slds-table_bordered tablerow" key={record.id}>
-                                    <td class="tableData" data-label="Sr. No.">
-                                        <div class="slds-truncate">{record.serialNumber}</div>
-                                    </td>
-                                    <td class="tableData" data-label="Template Name" title={record.Template_Name__c}>
-                                        <div class="truncate-name">{record.Template_Name__c}</div>
-                                    </td>
-                                    <td class="tableData" data-label="Category">
-                                        <div class="slds-truncate">{record.Template_Category__c}</div>
-                                    </td>
-                                    <td class="tableData" data-label="Language">
-                                        <div class="slds-truncate">{record.LanguageLabel}</div>
-                                    </td>
-                                    <td class="tableData status" data-label="Status">
-                                        <div class="slds-truncate"><p class={record.Status__c}>{record.Status__c}</p></div>
-                                    </td>
-                                    <td class="tableData tablebtns" data-label="Actions">
-                                        <button class="action-buttons">
-                                            <img src="/resource/previewIcon" class="action" alt="preview" data-id={record.id} onclick={previewTemplate}>
-                                        </button>
-                                        <button disabled={record.isButtonDisabled} class="action-buttons">
-                                            <img src="/resource/editIcon" class={record.cssClass} alt="edit" data-id={record.id} onclick={editTemplate} >
-                                        </button>
-                                        <button class="action-buttons">
-                                            <img src="/resource/trashIcon" class="action trash" alt="delete" data-id={record.id} onclick={deleteTemplate}>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </template>
-                        <template if:false={filteredRecords.length}>
+                <!-- Custom Table -->
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td class="slds-text-align_center" colspan="6">
-                                    No records found.
-                                </td>
+                                <th class="sr-no">No.</th>
+                                <th>Template Name</th>
+                                <th>Category</th>
+                                <th>Language</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
-                        </template>
-                    </tbody>          
-                    
-                </table>
+                        </thead>
+                        <tbody>
+                            <template if:true={allRecords.length}>
+                                <template for:each={filteredRecords} for:item="record">
+                                   
+                                    <tr key={record.id}>
+                                        <td class="sr-no">{record.serialNumber}</td>
+                                        <td data-id={record.Id} title={record.Template_Name__c} class="template-name">{record.Template_Name__c}</td>
+                                        <td>{record.Template_Category__c}</td>
+                                        <td>{record.LanguageLabel}</td>
+                                        <td><p class={record.Status__c}>{record.Status__c}</p></td>
+                                        <td class="tablebtns">
+                                            <button class="action-buttons" onclick={previewTemplate}>
+                                                <img src="/resource/previewIcon" class="action" alt="preview" data-id={record.Id}>
+                                            </button>
+                                            <button disabled={record.isButtonDisabled} class="action-buttons" onclick={editTemplate}>
+                                                <img src="/resource/editIcon" class={record.cssClass} alt="edit" data-id={record.Id}>
+                                            </button>
+                                            <button class="action-buttons" onclick={deleteTemplate}>
+                                                <img src="/resource/trashIcon" class="action trash" alt="delete" data-id={record.Id}>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </template>
+                            
+                        </tbody>
+                    </table>
             </div>
+    
         </div>
     </template>
 

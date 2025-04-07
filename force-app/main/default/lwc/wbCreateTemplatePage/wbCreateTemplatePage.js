@@ -321,6 +321,13 @@ export default class WbCreateTemplatePage extends LightningElement {
         }
         this.handleDefaultValues();
         
+        this.template.querySelectorAll('.section-tab-li').forEach(item => {
+            item.classList.remove('slds-button_brand');
+        });
+        const activeBtn = this.template.querySelector(`[data-tab="${this.activeSection}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add('slds-button_brand');
+        }
         // this.template.querySelector('.' + this.activeSection).classList.add('active-tab');
     }
 
@@ -594,6 +601,12 @@ export default class WbCreateTemplatePage extends LightningElement {
         this.generateEmojiCategories();
         this.fetchUpdatedTemplates(false);
         this.fetchObjectsWithPhoneField();
+        console.log(this.activeSection);
+        
+        // const activeBtn = this.template.querySelector(`[data-tab="${this.activeSection}"]`);
+        // if (activeBtn) {
+        //     activeBtn.classList.add('slds-button_brand');
+        // }
     }
 
     fetchObjectsWithPhoneField() {
@@ -621,14 +634,16 @@ export default class WbCreateTemplatePage extends LightningElement {
             try {
                 
                 this.template.querySelectorAll('.section-tab-li').forEach(item => {
-                    item.classList.remove('active-tab');
-                })
-        
+                    item.classList.remove('slds-button_brand');
+                });
+                
                 if(this.isStage1){
-                    const activeEl = this.template.querySelector('.' + this.activeSection);
-                    if (activeEl) {
-                        activeEl.classList.add('active-tab');
-                    } else {
+                    
+                        const activeBtn = this.template.querySelector(`[data-tab="${this.activeSection}"]`);
+                        if (activeBtn) {
+                            activeBtn.classList.add('slds-button_brand');
+                        }
+                        else {
                         console.warn(`Element with class .${this.activeSection} not found`);
                     }
                 }
