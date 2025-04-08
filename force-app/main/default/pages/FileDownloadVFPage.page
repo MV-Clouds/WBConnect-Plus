@@ -1,0 +1,7 @@
+<apex:page controller="FileDownloadController" contentType="{!fileContentType}" showHeader="false" sidebar="false" cache="false">
+    <html>
+        <body>   
+            {!fileDownload}
+        </body>
+    </html>
+</apex:page>

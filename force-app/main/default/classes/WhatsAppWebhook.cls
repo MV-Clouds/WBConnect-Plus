@@ -14,7 +14,7 @@ global without sharing class WhatsAppWebhook{
     public static String currentTime = System.now().format('yyyy-MM-dd HH:mm:ss');
     public static String phoneNumberId = '';
     public static List<Object> messages = new List<Object>();
-    public static List<AWS_Config__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c, CreatedDate, LastModifiedDate FROM AWS_Config__c  LIMIT 1];
+    public static List<AWS_Config__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c, CreatedDate, LastModifiedDate FROM AWS_Config__c LIMIT 1];
     public static AWS_Config__c configData = !configList.isEmpty() ? configList[0] : null;
 
     @HttpGet // GET
@@ -80,7 +80,6 @@ global without sharing class WhatsAppWebhook{
                         if(senders !=null && senders.size() > 0){
                             sender =  (Map<String, Object>) senders[0];
                         }
-                        
                         System.debug('messages ==> ' + messages);
                     }
                 }
@@ -129,7 +128,7 @@ global without sharing class WhatsAppWebhook{
             System.debug('messageType ==> ' + messageType);
 
             // Query to check if the message has already been processed
-            List<WBConnect_Chat__c> existingChatRecords = [SELECT Id FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c = :whatsAppMessageID LIMIT 1];
+            List<WBConnect_Chat__c> existingChatRecords = [SELECT Id FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c = :whatsAppMessageID AND User__c = :UserInfo.getUserId() LIMIT 1];
             if (!existingChatRecords.isEmpty()){
                 System.debug('Message already processed: ' + whatsAppMessageID);
                 return;
@@ -140,23 +139,24 @@ global without sharing class WhatsAppWebhook{
             }
             String formattedNumber = senderId.substring(0, 3) + senderId.substring(3);
 
-            List<Lead> contacts = new List<Lead>();
+            List<Lead> leads = new List<Lead>();
             System.debug('Sender Id => ' + senderId);
             
-            contacts = [SELECT Id, Name, Phone FROM Lead WHERE Phone = :formattedNumber LIMIT 1];
+            leads = [SELECT Id, Name, Phone FROM Lead WHERE Phone = :formattedNumber LIMIT 1];
             System.debug('formattedNumber Id => ' + formattedNumber);
-            Lead contact;
-            if (!contacts.isEmpty()){
-                contact = contacts[0];
+            Lead lead;
+            if (!leads.isEmpty()){
+                lead = leads[0];
             } else{
-                Lead Con = new Lead();
+                Lead ld = new Lead();
                 Map<String, Object> profile = (Map<String,Object>) sender.get('profile');
-                Con.LastName = (String) profile.get('name');
-                Con.Company = (String) profile.get('name');
-                Con.Phone = (String) senderId;
-                Con.Status = 'Open';
-                insert Con;
-                contact = Con;
+                ld.LastName = (String) profile.get('name');
+                ld.Company = (String) profile.get('name');
+                ld.Phone = (String) senderId;
+                ld.Status = 'Open';
+                ld.User__c = UserInfo.getUserId();
+                insert ld;
+                lead = ld;
             }
 
             DateTime myDateTime = DateTime.now();
@@ -167,28 +167,24 @@ global without sharing class WhatsAppWebhook{
             if (existingChatRecords.isEmpty()){
 
                 if(messageType.equalsIgnoreCase('reaction')){
-                    List<WBConnect_Chat__c> reactToChat = [SELECT Id, Reaction__c, Phone__c FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c =:reactToMessageId];
+                    List<WBConnect_Chat__c> reactToChat = [SELECT Id, Reaction__c, Phone__c FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c =:reactToMessageId AND User__c = :UserInfo.getUserId()];
                     if(reactToChat.size() > 0){
                         reactToChat[0].Reaction__c = reactToChat[0].Reaction__c!=null ? reactToChat[0].Reaction__c : '<|USER|>';
                         reactToChat[0].Reaction__c = reactToChat[0].Reaction__c.split('<|USER|>')[0] + '<|USER|>' + (reactedEmoji!=null ? reactedEmoji : '');
                         reactToChat[0].Last_Interaction_Date__c = System.now();
                         whatsappChat = reactToChat[0];
                         update whatsappChat;
-                        Chat_Message__e reactEvent = new Chat_Message__e();
-                        reactEvent.Chat_Data__c = JSON.serialize(whatsappChat);
-                        reactEvent.Type__c = 'react';
-                        reactEvent.Phone__c = whatsappChat.Phone__c;
-                        EventBus.publish(reactEvent);
                     }
                     return;
                 }
 
-                whatsappChat.Phone__c = contact.Phone;
+                whatsappChat.Phone__c = lead.Phone;
+                whatsappChat.User__c = UserInfo.getUserId();
                 whatsappChat.Type_of_Message__c = 'Inbound Messages';
                 whatsappChat.Message_Type__c = messageType;
                 whatsappChat.WhatsAppMessageId__c = whatsAppMessageID;
                 whatsappChat.Date_of_Message__c = formattedDate;
-                List<WBConnect_Chat__c> replyToChat = [SELECT Id FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c != null AND WhatsAppMessageId__c =:contextId];
+                List<WBConnect_Chat__c> replyToChat = [SELECT Id FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c != null AND WhatsAppMessageId__c =:contextId AND User__c = :UserInfo.getUserId()];
                 whatsappChat.Reply_To__c = replyToChat.size() > 0 ? replyToChat[0].Id : null;
 
                 if (messageType.equalsIgnoreCase('text')){
@@ -311,14 +307,6 @@ global without sharing class WhatsAppWebhook{
             }
             whatsappChat.Last_Interaction_Date__c = System.now();
             insert whatsappChat;
-
-            Chat_Message__e newChatEvent = new Chat_Message__e();
-            WBConnect_Chat__c chatToSend = [SELECT Id, Type_of_Message__c, WhatsAppMessageId__c, Message__c, Message_Status__c, Message_Type__c, Reply_To__c, Reaction__c, WBConnect_Template__c, WBConnect_Template__r.Name, CreatedDate, Last_Interaction_Date__c, Phone__c, File_Data__c FROM WBConnect_Chat__c WHERE Id =:whatsappChat.Id LIMIT 1];
-            newChatEvent.Chat_Data__c = JSON.serialize(chatToSend);
-            newChatEvent.Type__c = 'new';
-            newChatEvent.Phone__c = whatsappChat.Phone__c;
-            EventBus.publish(newChatEvent);
-
         } catch (Exception e){
             // ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'processSingleMessage', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             System.debug('Error in processSingleMessage: ' + e.getMessage() + '\n' + e + '\n Exception line no: ' + e.getLineNumber());
@@ -530,7 +518,7 @@ global without sharing class WhatsAppWebhook{
                                     String status = (String) statusMap.get('status');
                                     String waid = statusMap!= null ? (String) statusMap.get('id') : null;
 
-                                    List<WBConnect_Chat__c> waChats = [SELECT Id, Message_Status__c, WhatsAppMessageId__c, Phone__c FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c = :waid LIMIT 1];
+                                    List<WBConnect_Chat__c> waChats = [SELECT Id, Message_Status__c, WhatsAppMessageId__c, Phone__c FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c = :waid AND User__c = :UserInfo.getUserId() LIMIT 1];
                                     if(waChats.size() > 0){
                                         WBConnect_Chat__c waChat = waChats[0];
                                         if (status == 'sent' && waChat.Message_Status__c != 'Delivered' && waChat.Message_Status__c != 'Seen'){
@@ -541,11 +529,6 @@ global without sharing class WhatsAppWebhook{
                                             waChat.Message_Status__c = 'Seen';
                                         }
                                         update waChat;
-                                        Chat_Message__e statusChangeEvent = new Chat_Message__e();
-                                        statusChangeEvent.Chat_Data__c = JSON.serialize(waChat);
-                                        statusChangeEvent.Phone__c = waChat.Phone__c;
-                                        statusChangeEvent.Type__c = 'status';
-                                        EventBus.publish(statusChangeEvent);
                                     }
                                 }
                             }
@@ -583,35 +566,11 @@ global without sharing class WhatsAppWebhook{
                     waTemplate.Status__c = 'Rejected';
                 }
                 update waTemplate;
-
-                // Template_Update__e templateStatusEvent = new Template_Update__e();
-                // templateStatusEvent.Template_Id__c = waTemplate.Id;
-                // templateStatusEvent.Template_Status__c = waTemplate.Status__c;
-                // EventBus.publish(templateStatusEvent);
             } else{
                 System.debug('No WhatsApp Template found for Template Id: ' + templateId);
             }
         } catch (Exception e){
             System.debug('Error in updateWhatsAppTemplateStatus: ' + e.getMessage() + '\n' + e + '\n Exception line no: ' + e.getLineNumber());
-        }
-    }
-
-    @future(callout = true)
-    public static void sendEmail(String body){
-        try{
-            EmailServicesAddress esa = [SELECT EmailDomainName, LocalPart FROM EmailServicesAddress WHERE Function.FunctionName =: 'EmailService_WhatsApp' LIMIT 1];
-         
-            Messaging.SingleEmailMessage emailNotification = new Messaging.SingleEmailMessage();        
-            List<String> toAddresses = new List<String>();
-            toAddresses.add(esa.LocalPart+'@' +esa.EmailDomainName);
-
-            emailNotification.setToAddresses(toAddresses);
-            emailNotification.setSubject('Three Object Form');
-            emailNotification.setPlainTextBody(body);
-            Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[]{ emailNotification });
-        } catch (Exception e){
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'sendEmail', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
-            System.debug('Error in sendEmailViaGmail: ' + e.getMessage() + '\n' + e + '\n Exception line no: ' + e.getLineNumber());
         }
     }
 

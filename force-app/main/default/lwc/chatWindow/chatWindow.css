@@ -48,62 +48,289 @@
     --reaction-bg-color: white;
     --reaction-border-color: #eaeaea;
 }
-:host([data-theme="dark"]) {
-    /* THE DARK MODE STYLES */
-    /* Styles for main container */
-    --main-bg-color: black;
 
-    /* Styles for Mode Toggle */
-    --toggle-bg : white;
+.spinner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(240, 240, 240, 0.5); /* soft grey overlay */
+    backdrop-filter: blur(4px); /* blurred background */
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: inherit;
+}
 
-    /* Styles for the Received Message */
-    --inverted-filter : invert(1);
-    --received-message-bg-color: #232626;
-    --received-message-text-color: white;
-    --received-message-box-shadow: none;
+.parent-container{
+    height: 100%;
+    overflow-y: scroll;
+    border-radius: 0.8rem !important;
+}
 
-    /* Styles for the Sent Message */
-    --sent-message-bg-color: #075E54;
-    --sent-message-text-color: white;
-    --sent-message-box-shadow: none;
-    
-    /* Styles for Dates */
-    --date-bg-color: #4d4d4d;
-    --date-text-color: #ffffffaa;
+.contact-container{
+    float: left;
+    width: 30%;
+    height: 100%;
+    overflow-y: scroll;
+    margin: auto;
+}
 
-    /* Styles for the Message Compose */
-    --composer-bg-color: #232626;
-    --composer-text-color: white;
-    --composer-box-shadow: none;
+.header-container{
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+    overflow: hidden;
+}
 
-    /* Styles for Top - Down BG */
-    --top-down-bg-color: #4d4d4d;
-    --border-bottom-color : #636363;
+.header {
+    padding: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: flex;              /* Use flexbox */
+    justify-content: space-between; /* Pushes items to ends */
+    align-items: center;        /* Vertically centers items */
+}
 
-    /* Styles for Reply to messages BG */
-    --reply-to-bg-color: #f1f1f120;
-    --reply-to-received-border-color : #34B7F1;
-    --reply-to-sent-border-color : #34C759;
+.header-button {
+    margin-left: auto;          /* Pushes button to the right */
+    padding: 0.5rem 1rem;       /* Adjust padding as needed */
+    font-size: 1rem;            /* Match or adjust font size */
+    font-weight: normal;        /* Optional: less bold than header */
+    background-color: #007BFF;  /* Example button color */
+    color: white;               /* Text color */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
 
-    /* Styles for Reactions */
-    --reaction-bg-color: #4d4d4d;
-    --reaction-border-color: black;
+.header-button:hover {
+    background-color: #0056b3;  /* Darker shade on hover */
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    width: 92%;
+    border: 1px solid #d3d3d3;
+    border-radius: 20px;
+    background-color: #f5f5f5;
+    padding: 5px 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin: auto;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    color: #666;
+}
+
+.search-icon {
+    font-size: 16px;
+    color: #666;
+    margin-left: 5px;
+}
+
+.contact-list {
+    max-height: 537px;
+    overflow-y: auto;
+}
+
+.contact-item {
+    display: flex;
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.selectedContact{
+    display: flex;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    width: 100%;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.contact-details {
+    display: flex;
+}
+
+.deleteButton{
+    display: flex;
+    margin-left: auto;
+}
+
+.deleteBtn{
+    padding: 0.3rem 1rem;
+}
+
+.contact-item:hover {
+    background-color: #e1e4e7;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 1rem;
+}
+
+.contact-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+.selected-contact-content{
+    margin-block: auto;
+}
+
+.contact-name-time {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+}
+
+.contact-name{
+    color: black;
+}
+
+.last-time {
+    color: #999;
+    font-size: 0.8rem;
+}
+
+.messageTime {
+    color: #666;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.no-record-message{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    margin-top: 50%;
+}
+
+.no-selected-contact-message{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+}
+
+.popUpBody {
+    height: 100%;
+    background-image: url('/resource/WBConnectBackground');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.pop-heading{
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    font-weight: 500;
+    color: black;
+    padding: 0.4rem 1rem;
+    background: rgb(177, 239, 242);
+}
+
+.close-icon{
+    background-color: white;
+    padding: 2px;
+}
+
+.popUpFooter{
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    position: sticky;
+    bottom: 1rem;
+    padding-top: 1rem;
+}
+
+.save-btn{
+    border: 1px solid #c7c7c7;
+    border-radius: 5px;
+    color: white;
+    padding: 0.3rem;
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+    font-size: 14px;
+    background: #25D366;
+}
+
+.close-btn{
+    border: 1px solid #c7c7c7;
+    border-radius: 3px;
+    color: black;
+    padding: 0.3rem;
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+    font-size: 14px;
+    background: white;
+    font-weight: 500;
+}
+
+.custom-button {
+    display: inline-flex;
+    width: max-content;
+    justify-content: center;
+    height: -webkit-fill-available;
+    align-items: center;
+    background-color: #25D366;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border: none;
+    margin-bottom: 3px;
+    font-size: small;
+    font-weight: 500;
+}
+
+
+.left-icon {
+    border: 1px solid;
+    border-radius: 50%;
+    padding: 0.2rem;
+    transform: scale(0.6);
+}
+
+.btns{
+    color: white;
+    --sds-c-icon-color-foreground-default: white !important;
 }
 
 /* THEME TOGGLE SECTION */
-
 .main-chat-window-div{
     background-color: var(--main-bg-color, white);
-    width: 100%;
-    min-height: 20rem;
-    background-image: url(/resource/WBI_chat_bg);
-    background-size: auto;
-    background-repeat: repeat;
+    width: 70%;
+    background-size: 100%;
+    background-repeat: no-repeat;
     background-position: center;
-    border-radius: 6px;
     display: flex;
     flex-direction: column;
-    height: var(--height-of-main-chat-container, 30rem);
+    height: 100%;
     border: 0.5px solid lightgray;
     overflow: hidden;
     position: relative;
@@ -114,8 +341,7 @@
 
 .backdrop-div {
     position: absolute;
-    margin-top: 24px;
-    height: calc( 100% - 24px );
+    height: 100%;
     width: 100%;
     z-index: 10;
 }
@@ -123,57 +349,6 @@
 .main-chat-window-div:has(.popup-div) .backdrop-div {
     background-color: #a9a9a920;
     backdrop-filter: blur(2px);
-}
-
-.toggle-parent-div {
-    min-height: 24px;
-    height: 24px;
-    background-color: var(--top-down-bg-color, #eff2f5);
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    padding-inline: 8px;
-    border-bottom: 1px solid var(--border-bottom-color, #eaeaea);
-    width: 100%;
-}
-
-.toggle-mode-div {
-    position: relative;
-    width: 30px;
-    min-height: 15px;
-    height: 15px;
-    background: var(--toggle-bg, #ddd);
-    border-radius: 15px;
-    cursor: pointer;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    padding: 3px;
-    transition: all 0.4s ease;
-}
-
-.toggle-button {
-    position: absolute;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.4s ease, background-color 0.5s ease;
-}
-
-.sun-icon.hide {
-    transform: translateX(13px);
-    opacity: 0;
-    pointer-events: none;
-}
-.moon-icon {
-    opacity: 0;
-    pointer-events: none;
-}
-.moon-icon.show {
-    opacity: 1;
-    transform: translateX(13px);
-    pointer-events: auto;
 }
 
 /* CHAT SECTION */
@@ -203,6 +378,7 @@
     margin-top: 1rem;
     color: var(--composer-text-color, black);
 }
+
 .sub-text {
     color: #6c757d; /* Muted gray for better readability */
 }
@@ -210,8 +386,10 @@
 .message-date-div {
     margin-inline: auto;
     border-radius: 4px;
-    background-color: var(--date-bg-color, #eff2f5);
-    color: var(--date-text-color, black);
+    /* background-color: var(--date-bg-color, #eff2f5); */
+    background-color: #d0d3d6;
+    /* color: var(--date-text-color, black); */
+    color: black;
     width: fit-content;
     padding-inline: 8px;
     margin-block: 10px 8px;
@@ -252,15 +430,6 @@
     max-height: 20rem;
     cursor: pointer;
 }
-
-/* .video-message-div{
-    margin-block: 6px 4px;
-    max-height: 20rem;
-}
-
-.video-message-div video{
-    max-height: 20rem;
-} */
 
 .image-message-div.not-loaded-image{
     pointer-events: none;
@@ -350,11 +519,12 @@
 .audio-name p {
     width: 11rem;
     margin-left: 0.4rem;
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
     display: block;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 14px;
 }
 
 .other-message-sub-text{
@@ -418,7 +588,7 @@
 .timestamp {
     font-size: 10px;
     line-height: normal;
-    color: darkgray;
+    color: black;
     text-align: right;
     display: flex;
     justify-content: end;
@@ -545,10 +715,6 @@
     align-items: center;
     border-radius: 4px;
 }
-/* 
-.action-option svg{
-    fill: var(--composer-text-color, black);
-} */
 
 .action-option:hover {
     background-color: #7e7c7c30;
@@ -556,7 +722,6 @@
 
 
 /* MESSAGE COMPOSE SECTION */
-
 .message-draft-div {
     width: 100%;
     z-index: 15;
@@ -570,6 +735,14 @@
     background-color: var(--top-down-bg-color, #eff2f5);
     border-top:1px solid var(--border-bottom-color, #eaeaea);
     padding: 4px 12px;
+}
+
+.text-message-div {
+    font-size: 14px;
+}
+
+.fileNameSection{
+    font-size: 14px;
 }
 
 .reply-to-text-message-div{
@@ -774,7 +947,6 @@
 }
 
 /* Styles for Popup Div */
-
 .popup-div {
     max-height: 86%;
     height: fit-content;
@@ -906,8 +1078,6 @@
 
 .emoji-tray {
     display: flex;
-    /* height: 10rem;
-    flex-direction: column; */
     flex-wrap: wrap;
     column-gap: 4px;
     overflow-x: scroll;
@@ -1085,7 +1255,8 @@
 .doc-preview-aws{
     width: 300px;
     height: 150px;
-    border: 2px solid black;
+    padding-top: 6px;
+    border-radius: 10px;
     pointer-events: none;
     overflow: hidden;
 }

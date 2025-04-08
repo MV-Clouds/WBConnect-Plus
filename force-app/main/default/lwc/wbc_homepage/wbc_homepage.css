@@ -2,17 +2,12 @@
     min-height: 100vh;
     width: 100vw;
     background-color: #f0f7f0;
-    background-size: 100%;
-    background-repeat: repeat;
+    background-repeat: no-repeat;
     background-position: center;
 }
 
 .logo {
     width: 75px;
-    margin-bottom: 1rem;
-    position: fixed;
-    left: 1rem;
-    top: 1rem;
 }
 
 .left-side-bar {
@@ -38,13 +33,12 @@
 }
 
 .left-container{
-    margin-top: 4.5%;
+    margin-top: 1%;
 }
 
 .barchild {
     margin-top: 30%;
     cursor: pointer;
-    /* background-color: rgba(37, 211, 102, 1); */
     border-radius: 12px;
     width: 80%;
     margin-left: auto;
@@ -77,4 +71,13 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     border-radius: 0.8rem;
     margin-left: 1rem;
+}
+
+a {
+    color: #0070d2;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }

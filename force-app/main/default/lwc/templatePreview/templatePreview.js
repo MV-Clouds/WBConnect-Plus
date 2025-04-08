@@ -50,7 +50,6 @@ export default class TemplatePreview extends LightningElement {
     fetchInitialData(){
         this.showSpinner = true;
         try {
-            // console.log(this.templateId, this.objectApiName, this.recordId);
             getTemplateData({templateId: this.templateId, contactId:this.recordId, objectApiName : this.objectApiName})
             .then((templateData) => {
                 if(!templateData){
