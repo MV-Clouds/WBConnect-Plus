@@ -1,0 +1,58 @@
+<template>
+    <div class="wrapper" style={backgroundStyle}>
+        <div class="heading">
+            <div class="left-align">Import Contacts from CSV</div>
+        </div>
+
+        <label class="custom-file-upload">
+            <lightning-icon icon-name="utility:upload" alternative-text="Upload Icon" size="x-small"></lightning-icon>
+            <span class="slds-p-left--medium slds-text-color_success">Choose File</span>
+            <input type="file" class="file-input" onchange={handleFileChange} accept=".csv" />
+        </label>
+
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Uploading..."></lightning-spinner>
+        </template>
+
+        <template if:true={leadData.length}>
+            <div class="button-container">
+                <div class="btns">
+                    <button class="custom-button" onclick={handleInsertRecords}>
+                        <lightning-icon icon-name="utility:add" alternative-text="Add" size="x-small"
+                        class="left-icon"></lightning-icon>
+                        <span>Insert Records</span>
+                    </button>
+                </div>
+                <lightning-button variant="destructive-text" class="slds-m-left_small" label="Cancel" onclick={handleCancel}></lightning-button>
+            </div>
+
+            <div class="container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="sr-no">No.</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={leadData} for:item="lead">
+                            <tr key={lead.key}>
+                                <td class="sr-no">{lead.RowNumber}</td>
+                                <td>{lead.Name}</td>
+                                <td>{lead.Phone}</td>
+                            </tr>
+                        </template>                                                        
+                    </tbody>
+                </table>
+            </div>
+        </template>
+
+        <template if:false={leadData.length}>
+            <div class="no-file-container">
+                <img src={noFile} alt="No File Uploaded" class="no-file-img" />
+            </div>
+        </template>        
+    </div>
+    <c-message-popup></c-message-popup>
+</template>

@@ -87,11 +87,13 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     resize: vertical;
+    font-size: smaller;
   }
   
   label {
     padding: 12px 12px 12px 0;
     display: inline-block;
+    font-size: smaller;
   }
   
   .button-container {

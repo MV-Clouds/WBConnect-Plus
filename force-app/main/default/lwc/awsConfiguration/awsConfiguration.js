@@ -11,7 +11,6 @@ import deleteRecordByAccessKey from '@salesforce/apex/AwsConfigurationController
 import AWS_logo from '@salesforce/resourceUrl/AWS_logo';
 import NoData from '@salesforce/resourceUrl/NoData';
 import homePageBGImg from '@salesforce/resourceUrl/homePageBG';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class StorageIntegration extends LightningElement {
     @track accessKeyValue = '';
@@ -154,13 +153,13 @@ export default class StorageIntegration extends LightningElement {
     handleSave() {
 
         if (!this.accessKey || !this.secretAccessKey || !this.s3BucketName|| !this.s3RegionName) {
-            this.showToast('Success', 'Please Enter value for all the Fields', 'error');
+            this.showMessageToast('Success', 'Please Enter value for all the Fields', 'error');
             return;
         }
 
         saveConfiguration({accessKey : this.accessKey, regionName : this.s3RegionName , secretAccessKey : this.secretAccessKey, bucketName : this.s3BucketName})
         .then(() => {
-            this.showToast('Success', 'Saved successfully', 'success');
+            this.showMessageToast('Success', 'Configuration Saved successfully', 'success');
 
             this.accessKey = '*'.repeat(this.accessKeyValue.length);
             this.secretAccessKey = '*'.repeat(this.secretAccessKeyValue.length);
@@ -171,7 +170,7 @@ export default class StorageIntegration extends LightningElement {
             this.fetchConfiguration();
         })
         .catch(error => {
-            this.showToast('Error', error.message.body, 'error');
+            this.showMessageToast('Error', error.message.body, 'error');
         });
     }
 
@@ -184,16 +183,21 @@ export default class StorageIntegration extends LightningElement {
     async handleDeactivate() {
         try {
             const result = await deleteRecordByAccessKey({ accessKey: this.accessKeyValue });
-            this.showToast('Success', 'Record has been deactivated successfully', 'success');
+            this.showMessageToast('Success', 'Configuration has been deactivated successfully', 'success');
             this.showNoData = true;
             this.fetchConfiguration();
         } catch (error) {
             console.error("Error deleting record:", error);
-            this.showToast('Error', 'Failed to deactivate record', 'error');
+            this.showMessageToast('Error', 'Failed to deactivate configuration', 'error');
         }
     }
 
-    showToast(title, message, variant) {
-        this.dispatchEvent(new ShowToastEvent({title: title,message: message,variant: variant}));
+    showMessageToast(title, message, status){
+        const messageContainer = this.template.querySelector('c-message-popup')
+        messageContainer?.showMessageToast({
+            status: status,
+            title: title,
+            message : message
+        });
     }
 }

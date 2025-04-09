@@ -19,10 +19,10 @@ import PROFILE from '@salesforce/resourceUrl/defaultProfile';
 import WBCChatBG from '@salesforce/resourceUrl/WBCChatBG';
 
 export default class ChatWindow extends LightningElement {
-    contacts = [];
-    filteredContacts = [];
-    profileUrl = PROFILE;
-    backgroundStyle = `background-image: url(${WBCChatBG});`;
+    @track contacts = [];
+    @track filteredContacts = [];
+    @track profileUrl = PROFILE;
+    @track backgroundStyle = `background-image: url(${WBCChatBG});`;
     
     //Data Variables
     @api height;
@@ -34,7 +34,7 @@ export default class ChatWindow extends LightningElement {
     @track selectedTemplate = null;
     @track allTemplates = [];
     @track templateSearchKey = null;
-    emojiCategories = [];
+    @track emojiCategories = [];
     @track isEmojiLoaded = false;
     @track replyToMessage = null;
     @track reactToMessage = null;
@@ -43,10 +43,10 @@ export default class ChatWindow extends LightningElement {
     //Control Variables
     @track showSpinner = false;
     @track noChatMessages = true;
-    showEmojiPicker = false;
-    showAttachmentOptions = false;
+    @track showEmojiPicker = false;
+    @track showAttachmentOptions = false;
     // showSendOptions = false;
-    scrollBottom = false;
+    @track scrollBottom = false;
     @track showReactEmojiPicker = false;
     @track sendOnlyTemplate = false;
 
@@ -57,28 +57,29 @@ export default class ChatWindow extends LightningElement {
     @track uploadFileType = null;
     @track NoPreviewAvailable = NoPreviewAvailable;
     @track headphone = whatsappAudioIcon;
-    audioPreview = false;
-    audioURL = '';
-    isAWSEnabled = false;
+    @track audioPreview = false;
+    @track audioURL = '';
+    @track isAWSEnabled = false;
     @track confData;
     @track s3;
     @track isAwsSdkInitialized = true;
     @track selectedFilesToUpload = [];
-    selectedFileName;
-    showCreateContactPopup = false;
-    showDeleteContactPopup
-    nameValue = '';
-    phoneValue = '';
+    @track selectedFileName;
+    @track showCreateContactPopup = false;
+    @track showDeleteContactPopup = false;
+    @track nameValue = '';
+    @track phoneValue = '';
+    @track intervalId;
 
     @track objectApiName = 'Lead';
     @track recordId;
     @track phoneNumber;
     @track recordName;
 
-    replyBorderColors = ['#34B7F1', '#FF9500', '#B38F00', '#ffa5c0', '#ff918b'];
+    @track replyBorderColors = ['#34B7F1', '#FF9500', '#B38F00', '#ffa5c0', '#ff918b'];
 
-    subscription = {};
-    channelName = '/event/Chat_Message__e';
+    @track subscription = {};
+    @track channelName = '/event/Chat_Message__e';
 
     //Get Variables
     get showPopup(){
@@ -177,6 +178,7 @@ export default class ChatWindow extends LightningElement {
         
         this.recordId = contactId;
         this.getInitialData();
+        // this.refreshDataIn5Secs();
         this.showSpinner = true;
     }
 
@@ -244,9 +246,18 @@ export default class ChatWindow extends LightningElement {
             })
     }
 
+    refreshDataIn5Secs(){
+        this.intervalId = setInterval(() => {
+            this.getInitialData(true);
+        }, 5000);
+    }
+
     // Fetch Initial Data
-    getInitialData(){
-        this.showSpinner = true;
+    getInitialData(hideSpinner){
+        if(!hideSpinner || hideSpinner == false){
+            this.showSpinner = true;
+        }
+        console.log('Method called at:', new Date().toLocaleTimeString());
         try {
             getCombinedData({ contactId: this.recordId, objectApiName: this.objectApiName })
                 .then(combinedData => {
@@ -1255,5 +1266,10 @@ export default class ChatWindow extends LightningElement {
             title: title,
             message : message
         });
+    }
+
+    disconnectedCallback() {
+        // Clear the interval when component is removed
+        clearInterval(this.intervalId);
     }
 }
