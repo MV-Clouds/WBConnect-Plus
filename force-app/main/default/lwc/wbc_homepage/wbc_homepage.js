@@ -8,8 +8,26 @@ export default class Wbc_homepage extends LightningElement {
     @track activeTab = 'ChatWindow'; // Default tab
     loginUrl = '/login';
 
+    @track tabClasses = {
+        ChatWindow: 'barchild active-tab',
+        Configuration: 'barchild',
+        Template: 'barchild',
+        Broadcast: 'barchild',
+        BroadcastGroups: 'barchild',
+        Flows: 'barchild',
+        AWS: 'barchild',
+        Automation: 'barchild',
+        ImportData: 'barchild'
+    };
+
+
     handleActive(event) {
         this.activeTab = event.currentTarget.dataset.name;
+
+        // Update tab classes dynamically
+        Object.keys(this.tabClasses).forEach((tab) => {
+            this.tabClasses[tab] = tab === this.activeTab ? 'barchild active-tab' : 'barchild';
+        });
     }
 
     get isConfiguration() {

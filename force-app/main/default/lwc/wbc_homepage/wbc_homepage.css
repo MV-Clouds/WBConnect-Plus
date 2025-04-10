@@ -1,9 +1,12 @@
 .main-container {
-    min-height: 100vh;
+    /* min-height: 100vh; */
+    height: 100%;
     width: 100vw;
     background-color: #f0f7f0;
     background-repeat: no-repeat;
     background-position: center;
+    overflow: hidden;
+    scrollbar-width: none;
 }
 
 .logo {
@@ -13,27 +16,30 @@
 .left-side-bar {
     display: flex;
     flex-direction: column;
-    /* width: 5%; */
-    min-width: 5%;
-    max-width: 5%;
-    /* padding-top: 2%; */
+    align-items: center;
+    justify-content: space-around;
+    width: 4rem;
     font-size: 12px;
     color: #25D366;
     cursor: pointer;
-    height: 88vh;
+    height: 86vh;
     float: left;
     box-sizing: border-box;
     text-align: center;
-    /* width: 6%; */
     background-color: white;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     border-radius: 0.8rem;
     margin-left: 1rem;
+    scrollbar-width: none;
+    overflow: scroll;
     margin-bottom: 1rem;
 }
 
-.left-container{
-    margin-top: 1%;
+.container{
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    padding-top: 1rem;
 }
 
 .barchild {
@@ -66,11 +72,11 @@
 .right-div{
     float: left;
     width: 92%;
-    height: 88vh;
+    height: 86vh;
     background: white;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     border-radius: 0.8rem;
-    margin-left: 1rem;
+    margin: 0rem 1rem;
 }
 
 a {
@@ -80,4 +86,15 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+.active-tab {
+    color: white;
+    background-color: #000000;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
 }
