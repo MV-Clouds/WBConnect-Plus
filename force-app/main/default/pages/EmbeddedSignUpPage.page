@@ -520,7 +520,7 @@
             appId            : '{!clientId}',
             autoLogAppEvents : true,
             xfbml            : true,
-            version          : 'v21.0'
+            version          : 'v22.0'
           });
         };
         console.log('On load log');

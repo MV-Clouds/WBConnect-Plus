@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 04-07-2025
+ * @last modified on  : 04-11-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 global without sharing class EmbeddedSignUpController {
@@ -41,7 +41,7 @@ global without sharing class EmbeddedSignUpController {
                 return 'Failure';
             }
             
-            String tokenUrl = 'https://graph.facebook.com/v21.0/oauth/access_token?grant_type=fb_exchange_token&client_id=' + embeddedConfig[0].Client_Id__c + '&client_secret=' + embeddedConfig[0].Client_Secret__c + '&fb_exchange_token='+sAccessToken;
+            String tokenUrl = 'https://graph.facebook.com/v22.0/oauth/access_token?grant_type=fb_exchange_token&client_id=' + embeddedConfig[0].Client_Id__c + '&client_secret=' + embeddedConfig[0].Client_Secret__c + '&fb_exchange_token='+sAccessToken;
             HttpRequest req = new HttpRequest();
             req.setEndpoint(tokenUrl);
             req.setMethod('GET');
@@ -52,7 +52,7 @@ global without sharing class EmbeddedSignUpController {
             if (res.getStatusCode() == 200) {
                 Map<String, Object> responseBody1 = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
                 String accessToken = (String) responseBody1.get('access_token');
-                Boolean isSuccess = saveMetaData(accessToken, phoneId, wabaId, appId);
+                Boolean isSuccess = saveMetaData(accessToken, phoneId, wabaId, appId, true);
                 if(isSuccess){
                     return wabaId;
                 }
@@ -68,7 +68,7 @@ global without sharing class EmbeddedSignUpController {
     @RemoteAction
     global static Boolean unlinkAccount(){
         try{
-            Boolean isSuccess = saveMetaData('', '', '', '');
+            Boolean isSuccess = saveMetaData('', '', '', '', false);
             if(isSuccess){
                 return true;
             }
@@ -80,7 +80,7 @@ global without sharing class EmbeddedSignUpController {
     }
     
     
-    public static Boolean saveMetaData(String accessToken, String phoneId, String wabaId, String appId){
+    public static Boolean saveMetaData(String accessToken, String phoneId, String wabaId, String appId, Boolean configStatus){
 
         System.debug('SaveMetaData method');
         try {
@@ -96,6 +96,8 @@ global without sharing class EmbeddedSignUpController {
             config.Business_Account_Id__c = wabaId;
             config.Access_Token__c = accessToken;
             config.Phone_Number_Id__c = phoneId;
+            config.Is_WBA_Configured__c = configStatus;
+
             insert config;
 
             return true;
