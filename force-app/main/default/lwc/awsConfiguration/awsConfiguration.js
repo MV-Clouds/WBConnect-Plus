@@ -53,8 +53,8 @@ export default class StorageIntegration extends LightningElement {
                     this.s3BucketName = this.s3BucketNameValue || '';
                     this.s3RegionName = this.s3RegionNameValue || '';
 
-                    this.createdDate = result.CreatedDate ? new Date(result.CreatedDate).toLocaleString() : '';
-                    this.lastModifiedDate = result.LastModifiedDate ? new Date(result.LastModifiedDate).toLocaleString() : '';
+                    // this.createdDate = result.CreatedDate ? new Date(result.CreatedDate).toLocaleString() : '';
+                    // this.lastModifiedDate = result.LastModifiedDate ? new Date(result.LastModifiedDate).toLocaleString() : '';
     
                     this.isDisabled = true;
                     this.isEditing = false;

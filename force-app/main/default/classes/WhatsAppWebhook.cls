@@ -9,13 +9,15 @@
  * Date Modified - Developer Name - Description
  * 
  **/
-@RestResource(urlMapping = '/WBConnectPlus/webhooks/v1/*')
+@RestResource(urlMapping = '/WBCP/webhooks/v1/*')
 global without sharing class WhatsAppWebhook{
     public static String currentTime = System.now().format('yyyy-MM-dd HH:mm:ss');
     public static String phoneNumberId = '';
     public static List<Object> messages = new List<Object>();
-    public static List<AWS_Config__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c, CreatedDate, LastModifiedDate FROM AWS_Config__c LIMIT 1];
-    public static AWS_Config__c configData = !configList.isEmpty() ? configList[0] : null;
+    public static List<WBConnect_Meta_Configuration__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c FROM WBConnect_Meta_Configuration__c WHERE Is_AWS_Configured__c = true LIMIT 1]; 
+    public static WBConnect_Meta_Configuration__c configData = !configList.isEmpty() ? configList[0] : null;
+    public static List<WBConnect_Meta_Configuration__c> wbConfig = [SELECT Id, Access_Token__c, Phone_Number_Id__c FROM WBConnect_Meta_Configuration__c WHERE Is_WBA_Configured__c = true LIMIT 1]; 
+    public static String userAccountId = getUserAccount();
 
     @HttpGet // GET
     global static void doGet(){
@@ -89,7 +91,7 @@ global without sharing class WhatsAppWebhook{
                 processSingleMessage(message, sender);
             }
         } catch (Exception e){
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'processWhatsAppPayload', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'processWhatsAppPayload', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             System.debug('Error in processWhatsAppPayload: ' + e.getMessage() + '\n' + e + '\n Exception line no: ' + e.getLineNumber());
         }
     }
@@ -128,7 +130,7 @@ global without sharing class WhatsAppWebhook{
             System.debug('messageType ==> ' + messageType);
 
             // Query to check if the message has already been processed
-            List<WBConnect_Chat__c> existingChatRecords = [SELECT Id FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c = :whatsAppMessageID AND User__c = :UserInfo.getUserId() LIMIT 1];
+            List<WBConnect_Chat__c> existingChatRecords = [SELECT Id FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c = :whatsAppMessageID LIMIT 1];
             if (!existingChatRecords.isEmpty()){
                 System.debug('Message already processed: ' + whatsAppMessageID);
                 return;
@@ -139,24 +141,22 @@ global without sharing class WhatsAppWebhook{
             }
             String formattedNumber = senderId.substring(0, 3) + senderId.substring(3);
 
-            List<Lead> leads = new List<Lead>();
+            List<WBConnect_Contact__c> contacts = new List<WBConnect_Contact__c>();
             System.debug('Sender Id => ' + senderId);
             
-            leads = [SELECT Id, Name, Phone FROM Lead WHERE Phone = :formattedNumber LIMIT 1];
+            contacts = [SELECT Id, Name, Phone__c FROM WBConnect_Contact__c WHERE Phone__c = :formattedNumber LIMIT 1];
             System.debug('formattedNumber Id => ' + formattedNumber);
-            Lead lead;
-            if (!leads.isEmpty()){
-                lead = leads[0];
+            WBConnect_Contact__c contact;
+            if (!contacts.isEmpty()){
+                contact = contacts[0];
             } else{
-                Lead ld = new Lead();
+                WBConnect_Contact__c con = new WBConnect_Contact__c();
                 Map<String, Object> profile = (Map<String,Object>) sender.get('profile');
-                ld.LastName = (String) profile.get('name');
-                ld.Company = (String) profile.get('name');
-                ld.Phone = (String) senderId;
-                ld.Status = 'Open';
-                ld.User__c = UserInfo.getUserId();
-                insert ld;
-                lead = ld;
+                con.Name = (String) profile.get('name');
+                con.Phone__c = (String) senderId;
+                con.Account__c = userAccountId;
+                insert con;
+                contact = con;
             }
 
             DateTime myDateTime = DateTime.now();
@@ -167,7 +167,7 @@ global without sharing class WhatsAppWebhook{
             if (existingChatRecords.isEmpty()){
 
                 if(messageType.equalsIgnoreCase('reaction')){
-                    List<WBConnect_Chat__c> reactToChat = [SELECT Id, Reaction__c, Phone__c FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c =:reactToMessageId AND User__c = :UserInfo.getUserId()];
+                    List<WBConnect_Chat__c> reactToChat = [SELECT Id, Reaction__c, Phone__c FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c =:reactToMessageId ];
                     if(reactToChat.size() > 0){
                         reactToChat[0].Reaction__c = reactToChat[0].Reaction__c!=null ? reactToChat[0].Reaction__c : '<|USER|>';
                         reactToChat[0].Reaction__c = reactToChat[0].Reaction__c.split('<|USER|>')[0] + '<|USER|>' + (reactedEmoji!=null ? reactedEmoji : '');
@@ -178,13 +178,13 @@ global without sharing class WhatsAppWebhook{
                     return;
                 }
 
-                whatsappChat.Phone__c = lead.Phone;
-                whatsappChat.User__c = UserInfo.getUserId();
+                whatsappChat.Phone__c = contact.Phone__c;
+                whatsappChat.Account__c = userAccountId;
                 whatsappChat.Type_of_Message__c = 'Inbound Messages';
                 whatsappChat.Message_Type__c = messageType;
                 whatsappChat.WhatsAppMessageId__c = whatsAppMessageID;
                 whatsappChat.Date_of_Message__c = formattedDate;
-                List<WBConnect_Chat__c> replyToChat = [SELECT Id FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c != null AND WhatsAppMessageId__c =:contextId AND User__c = :UserInfo.getUserId()];
+                List<WBConnect_Chat__c> replyToChat = [SELECT Id FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c != null AND WhatsAppMessageId__c =:contextId ];
                 whatsappChat.Reply_To__c = replyToChat.size() > 0 ? replyToChat[0].Id : null;
 
                 if (messageType.equalsIgnoreCase('text')){
@@ -301,14 +301,14 @@ global without sharing class WhatsAppWebhook{
                                 }
                             }
                         }
-                        whatsappChat.Message_Type__c = 'interactive';
+                        whatsappChat.Message_Type__c = 'Interactive';
                     }
                 }
             }
             whatsappChat.Last_Interaction_Date__c = System.now();
             insert whatsappChat;
         } catch (Exception e){
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'processSingleMessage', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'processSingleMessage', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             System.debug('Error in processSingleMessage: ' + e.getMessage() + '\n' + e + '\n Exception line no: ' + e.getLineNumber());
         }
     }
@@ -356,8 +356,7 @@ global without sharing class WhatsAppWebhook{
         try{
             String mediaUrl = 'https://graph.facebook.com/v20.0/' + documentId;
             String accessToken = '';
-            List<WBConnect_Configuration__mdt> config = WBConnect_Configuration__mdt.getAll().values();
-            accessToken = config[0].Access_Token__c;
+            accessToken = wbConfig[0].Access_Token__c;
             
             if (accessToken != ''){
                 HttpRequest req = new HttpRequest();
@@ -392,7 +391,7 @@ global without sharing class WhatsAppWebhook{
                 return null;
             }
         } catch (Exception e){
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'processSingleMessage', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'processSingleMessage', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             System.debug('Error in handleMediaAttachment: ' + e.getMessage() + '\n' + e + '\n Exception line no: ' + e.getLineNumber());
             return null;
         }
@@ -417,7 +416,7 @@ global without sharing class WhatsAppWebhook{
                 return null;
             }
         } catch (Exception e){
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'downloadMediaContent', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'downloadMediaContent', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             System.debug('Error in downloadMediaContent: ' + e.getMessage() + '\n' + e + '\n Exception line no: ' + e.getLineNumber());
             return null;
         }
@@ -518,7 +517,7 @@ global without sharing class WhatsAppWebhook{
                                     String status = (String) statusMap.get('status');
                                     String waid = statusMap!= null ? (String) statusMap.get('id') : null;
 
-                                    List<WBConnect_Chat__c> waChats = [SELECT Id, Message_Status__c, WhatsAppMessageId__c, Phone__c FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c = :waid AND User__c = :UserInfo.getUserId() LIMIT 1];
+                                    List<WBConnect_Chat__c> waChats = [SELECT Id, Message_Status__c, WhatsAppMessageId__c, Phone__c FROM WBConnect_Chat__c WHERE WhatsAppMessageId__c = :waid  LIMIT 1];
                                     if(waChats.size() > 0){
                                         WBConnect_Chat__c waChat = waChats[0];
                                         if (status == 'sent' && waChat.Message_Status__c != 'Delivered' && waChat.Message_Status__c != 'Seen'){
@@ -544,7 +543,7 @@ global without sharing class WhatsAppWebhook{
             }
             return messages;
         } catch (Exception e){
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'parseMessages', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'parseMessages', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             System.debug('Error in parseMessages: ' + e.getMessage() + '\n' + e + '\n Exception line no: ' + e.getLineNumber());
             return null;
         }
@@ -570,7 +569,18 @@ global without sharing class WhatsAppWebhook{
                 System.debug('No WhatsApp Template found for Template Id: ' + templateId);
             }
         } catch (Exception e){
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppWebhook', 'methodName' => 'updateWhatsAppTemplateStatus', 'exceptionObj' => e, 'isApiException' => False, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             System.debug('Error in updateWhatsAppTemplateStatus: ' + e.getMessage() + '\n' + e + '\n Exception line no: ' + e.getLineNumber());
+        }
+    }
+
+    public static String getUserAccount(){
+        String userId = UserInfo.getUserId();
+        List<User> userRec = [SELECT Id, AccountId FROM User WHERE Id = :userId LIMIT 1];
+        if (userRec.size() > 0){
+            return userRec[0].AccountId;
+        } else{
+            return null;
         }
     }
 

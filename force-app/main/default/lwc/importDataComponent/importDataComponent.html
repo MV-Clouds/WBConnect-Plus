@@ -5,7 +5,7 @@
         </div>
 
         <label class="custom-file-upload">
-            <lightning-icon icon-name="utility:upload" alternative-text="Upload Icon" size="x-small"></lightning-icon>
+            <lightning-icon icon-name="utility:download" alternative-text="Upload Icon" size="x-small"></lightning-icon>
             <span class="slds-p-left--medium slds-text-color_success">Choose File</span>
             <input type="file" class="file-input" onchange={handleFileChange} accept=".csv" />
         </label>
@@ -14,7 +14,7 @@
             <lightning-spinner alternative-text="Uploading..."></lightning-spinner>
         </template>
 
-        <template if:true={leadData.length}>
+        <template if:true={contactData.length}>
             <div class="button-container">
                 <div class="btns">
                     <button class="custom-button" onclick={handleInsertRecords}>
@@ -36,23 +36,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <template for:each={leadData} for:item="lead">
-                            <tr key={lead.key}>
-                                <td class="sr-no">{lead.RowNumber}</td>
-                                <td>{lead.Name}</td>
-                                <td>{lead.Phone}</td>
+                        <template for:each={contactData} for:item="con">
+                            <tr key={con.key}>
+                                <td class="sr-no">{con.RowNumber}</td>
+                                <td>{con.Name}</td>
+                                <td>{con.Phone}</td>
                             </tr>
-                        </template>                                                        
+                        </template>
                     </tbody>
                 </table>
             </div>
         </template>
 
-        <template if:false={leadData.length}>
+        <template if:false={contactData.length}>
             <div class="no-file-container">
                 <img src={noFile} alt="No File Uploaded" class="no-file-img" />
             </div>
-        </template>        
+        </template>
     </div>
     <c-message-popup></c-message-popup>
 </template>

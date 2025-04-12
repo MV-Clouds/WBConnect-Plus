@@ -44,7 +44,7 @@ public without sharing class AWSFilesController {
         } catch (Exception e) {
             System.debug('Error: ' + e.getMessage());
             System.debug('Line: ' + e.getLineNumber());
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'uploadFileToS3', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'uploadFileToS3', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
         }
         return publicURL;
     }

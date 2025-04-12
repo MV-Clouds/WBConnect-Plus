@@ -15,63 +15,68 @@
 **/
 public without sharing class ChatWindowController {
 
-    public static List<WBConnect_Configuration__mdt> wbConfig = WBConnect_Configuration__mdt.getAll().values(); 
+    public static List<WBConnect_Meta_Configuration__c> wbConfig = [SELECT Id, Access_Token__c, Phone_Number_Id__c FROM WBConnect_Meta_Configuration__c WHERE Is_WBA_Configured__c = true LIMIT 1]; 
+    public static String userAccountId = WhatsAppWebhook.getUserAccount();
 
     @AuraEnabled
-    public static Map<String, Map<String, Object>> getLeadsForChat() {
-        // Step 1: Get leads with valid phone numbers
-        List<Lead> leads = [SELECT Id, Name, Phone FROM Lead WHERE Phone != null AND Phone != ''];
-        // if (leads.isEmpty()) return new List<Lead>();
-
-        // Step 2: Build phone set from leads
-        Set<String> phoneSet = new Set<String>();
-        for (Lead l : leads) {
-            phoneSet.add(l.Phone);
+    public static Map<String, Map<String, Object>> getContactsForChat() {
+        try {
+            // Step 1: Get contacts with valid phone numbers
+            List<WBConnect_Contact__c> contacts = [SELECT Id, Name, Phone__c, User__c FROM WBConnect_Contact__c WHERE Phone__c != null AND Phone__c != ''];
+    
+            // Step 2: Build phone set from contacts
+            Set<String> phoneSet = new Set<String>();
+            for (WBConnect_Contact__c con : contacts) {
+                phoneSet.add(con.Phone__c);
+            }
+    
+            // Step 3: Get last chat time per phone from WBConnect_Chat__c
+            Map<String, DateTime> phoneToLastChat = new Map<String, DateTime>();
+            List<AggregateResult> chatAgg = [SELECT Phone__c, MAX(CreatedDate) maxDate FROM WBConnect_Chat__c WHERE Phone__c IN :phoneSet GROUP BY Phone__c];
+    
+            for (AggregateResult ar : chatAgg) {
+                phoneToLastChat.put((String)ar.get('Phone__c'), (DateTime)ar.get('maxDate'));
+            }
+    
+            // Step 4: Get count of unread outbound messages per phone
+            Map<String, Integer> phoneToUnreadOutboundCount = new Map<String, Integer>();
+            List<AggregateResult> unreadOutboundAgg = [ SELECT Phone__c, COUNT(Id) countId FROM WBConnect_Chat__c WHERE Phone__c IN :phoneSet AND Message_Status__c != 'Seen' AND Type_of_Message__c = 'Inbound Messages' GROUP BY Phone__c];
+    
+            for (AggregateResult ar : unreadOutboundAgg) {
+                phoneToUnreadOutboundCount.put((String)ar.get('Phone__c'), (Integer)ar.get('countId'));
+            }
+    
+            // Step 4: Sort the contacts by latest chat date descending
+            contacts.sort(new ContactChatComparator(phoneToLastChat));
+    
+            Map<String, Map<String, Object>> contactData = new Map<String, Map<String, Object>>();
+            for (WBConnect_Contact__c con : contacts) {
+                Map<String, Object> contactDetails = new Map<String, Object>();
+                contactDetails.put('Id', con.Id);
+                contactDetails.put('Name', con.Name);
+                contactDetails.put('Phone', con.Phone__c);
+                contactDetails.put('unreadOutboundCount', phoneToUnreadOutboundCount.containsKey(con.Phone__c) ? phoneToUnreadOutboundCount.get(con.Phone__c) : 0);
+                contactData.put(con.Id, contactDetails);
+            }
+    
+            return contactData;
+        } catch (Exception e) {
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'getContactsForChat', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            return null;
         }
-
-        // Step 3: Get last chat time per phone from WBConnect_Chat__c
-        Map<String, DateTime> phoneToLastChat = new Map<String, DateTime>();
-        List<AggregateResult> chatAgg = [SELECT Phone__c, MAX(CreatedDate) maxDate FROM WBConnect_Chat__c WHERE Phone__c IN :phoneSet GROUP BY Phone__c];
-
-        for (AggregateResult ar : chatAgg) {
-            phoneToLastChat.put((String)ar.get('Phone__c'), (DateTime)ar.get('maxDate'));
-        }
-
-        // Step 4: Get count of unread outbound messages per phone
-        Map<String, Integer> phoneToUnreadOutboundCount = new Map<String, Integer>();
-        List<AggregateResult> unreadOutboundAgg = [ SELECT Phone__c, COUNT(Id) countId FROM WBConnect_Chat__c WHERE Phone__c IN :phoneSet AND Message_Status__c != 'Seen' AND Type_of_Message__c = 'Inbound Messages' GROUP BY Phone__c];
-
-        for (AggregateResult ar : unreadOutboundAgg) {
-            phoneToUnreadOutboundCount.put((String)ar.get('Phone__c'), (Integer)ar.get('countId'));
-        }
-
-        // Step 4: Sort the leads by latest chat date descending
-        leads.sort(new LeadChatComparator(phoneToLastChat));
-
-        Map<String, Map<String, Object>> leadData = new Map<String, Map<String, Object>>();
-        for (Lead l : leads) {
-            Map<String, Object> leadDetails = new Map<String, Object>();
-            leadDetails.put('Id', l.Id);
-            leadDetails.put('Name', l.Name);
-            leadDetails.put('Phone', l.Phone);
-            leadDetails.put('unreadOutboundCount', phoneToUnreadOutboundCount.containsKey(l.Phone) ? phoneToUnreadOutboundCount.get(l.Phone) : 0);
-            leadData.put(l.Id, leadDetails);
-        }
-
-        return leadData;
     }
 
     // Inner comparator class
-    public class LeadChatComparator implements Comparator<Lead> {
+    public class ContactChatComparator implements Comparator<WBConnect_Contact__c> {
         Map<String, DateTime> phoneToChatMap;
 
-        public LeadChatComparator(Map<String, DateTime> phoneChatMap) {
+        public ContactChatComparator(Map<String, DateTime> phoneChatMap) {
             this.phoneToChatMap = phoneChatMap;
         }
 
-        public Integer compare(Lead a, Lead b) {
-            DateTime aDate = phoneToChatMap.containsKey(a.Phone) ? phoneToChatMap.get(a.Phone) : DateTime.newInstance(1900, 1, 1);
-            DateTime bDate = phoneToChatMap.containsKey(b.Phone) ? phoneToChatMap.get(b.Phone) : DateTime.newInstance(1900, 1, 1);
+        public Integer compare(WBConnect_Contact__c a, WBConnect_Contact__c b) {
+            DateTime aDate = phoneToChatMap.containsKey(a.Phone__c) ? phoneToChatMap.get(a.Phone__c) : DateTime.newInstance(1900, 1, 1);
+            DateTime bDate = phoneToChatMap.containsKey(b.Phone__c) ? phoneToChatMap.get(b.Phone__c) : DateTime.newInstance(1900, 1, 1);
 
             if (aDate > bDate) return -1; // Descending order
             if (aDate < bDate) return 1;
@@ -80,35 +85,35 @@ public without sharing class ChatWindowController {
     }
 
     @AuraEnabled
-    public static String createLead(String name, String phone) {
+    public static String createContact(String name, String phone) {
         try {
-            Lead ld = new Lead();
-            ld.LastName = name;
-            ld.Phone = phone;
-            ld.Company = name;
-            ld.Status = 'Open';
-            ld.User__c = UserInfo.getUserId();
-            insert ld;
-            return ld.Id;
+            WBConnect_Contact__c con = new WBConnect_Contact__c();
+            con.Name = name;
+            con.Phone__c = phone;
+            con.Account__c = userAccountId;
+            insert con;
+            return con.Id;
         } catch (Exception e) {
-            System.debug('Error creating lead: ' + e.getMessage());
+            System.debug('Error creating contact: ' + e.getMessage());
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'createContact', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             return 'Error - ' + e.getMessage();
         }
     }
 
     @AuraEnabled
-    public static String deleteLead(String leadId) {
+    public static String deleteContact(String conId) {
         try {
-            List<Lead> ld = [SELECT Id FROM Lead WHERE Id =:leadId];
+            List<WBConnect_Contact__c> con = [SELECT Id FROM WBConnect_Contact__c WHERE Id =:conId];
             
-            if (ld.size() > 0) {
-                delete ld;
-                return 'Lead deleted successfully';
+            if (con.size() > 0) {
+                delete con;
+                return 'Contact deleted successfully';
             } else {
-                return 'Lead not found';
+                return 'Contact not found';
             }
         } catch (Exception e) {
-            System.debug('Error deleting lead: ' + e.getMessage());
+            System.debug('Error deleting contact: ' + e.getMessage());
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'deleteContact', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             return 'Error - ' + e.getMessage();
         }
     }
@@ -126,8 +131,8 @@ public without sharing class ChatWindowController {
         try {
             List<WBConnect_Chat__c> chats = new List<WBConnect_Chat__c>();
             List<WBConnect_Template__c> templates = new List<WBConnect_Template__c>();
-            Lead recordData = [SELECT Id, Name, Phone FROM Lead WHERE Id =:contactId LIMIT 1];
-            String phoneNumber = recordData.Phone;
+            WBConnect_Contact__c recordData = [SELECT Id, Name, Phone__c FROM WBConnect_Contact__c WHERE Id =:contactId LIMIT 1];
+            String phoneNumber = recordData.Phone__c;
             String recordName = recordData.Name;
 
             chats = [SELECT Id, Type_of_Message__c, WhatsAppMessageId__c, Message__c, Message_Status__c, Message_Type__c, Reply_To__c, Reaction__c, WBConnect_Template__c, WBConnect_Template__r.Template_Name__c, CreatedDate, Last_Interaction_Date__c, Phone__c, File_Data__c FROM WBConnect_Chat__c WHERE Phone__c =:phoneNumber ORDER BY CreatedDate asc];
@@ -156,7 +161,7 @@ public without sharing class ChatWindowController {
             combinedData.put('phoneNumber', phoneNumber);
             combinedData.put('recordName', recordName);
         } catch (Exception e) {
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'fetchAllChats', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'fetchAllChats', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
         }
         return combinedData;
     }
@@ -181,7 +186,7 @@ public without sharing class ChatWindowController {
 
             WBConnect_Chat__c chat = new WBConnect_Chat__c();
             chat.Message__c = message;
-            chat.User__c = UserInfo.getUserId();
+            chat.Account__c =userAccountId;
             chat.WBConnect_Template__c = templateId;
             chat.Phone__c = phoneNumber;
             chat.Type_of_Message__c	= 'OutBound Messages';
@@ -189,33 +194,11 @@ public without sharing class ChatWindowController {
             chat.Message_Type__c = messageType;
             chat.Reply_To__c = replyToChatId;
 
-            if(messageType == 'Image' || messageType == 'Document' || messageType == 'Video' || messageType == 'Audio'){
-                List<ContentVersion> cv = [SELECT Id, ContentSize, Title, ContentDocumentId FROM ContentVersion WHERE Id =: message ];
-                if(cv.size() < 1) {return null;}
-                if(cv[0].ContentSize > 5000000){
-                    ContentDocument cd = new ContentDocument(Id = cv[0].ContentDocumentId);
-                    delete cd;
-                    throw new AuraHandledException('FILE_SIZE_EXCEEDED');
-                }
-                ContentDistribution cd = new ContentDistribution();
-                cd.Name = cv[0].Title;
-                cd.ContentVersionId = message;
-                cd.PreferencesAllowViewInBrowser= true;
-                cd.PreferencesLinkLatestVersion=true;
-                cd.PreferencesNotifyOnVisit=false;
-                cd.PreferencesPasswordRequired=false;
-                cd.PreferencesAllowOriginalDownload= true;
-                insert cd;
-
-                chat.Message__c = [SELECT ContentDownloadUrl FROM ContentDistribution WHERE Id=:cd.Id].ContentDownloadUrl;
-                Map<String, Object> fileData = new Map<String, Object>{ 'fileName' => cv[0].Title, 'documentId' => cv[0].ContentDocumentId, 'contentVersionId' => message };
-                chat.File_Data__c = JSON.serialize(fileData);
-            }
             insert chat;
             chat = [SELECT Id, Type_of_Message__c, WhatsAppMessageId__c, Message__c, Message_Status__c, Message_Type__c, Reply_To__c, Reaction__c, WBConnect_Template__c, WBConnect_Template__r.Template_Name__c, CreatedDate, Last_Interaction_Date__c, File_Data__c FROM WBConnect_Chat__c WHERE Id =:chat.Id ];
             return chat;
         } catch (Exception e) {
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'createChat', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' =>  e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'createChat', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' =>  e.getMessage(), 'apiResponse' => null});
             return null;
         }
     }
@@ -298,7 +281,7 @@ public without sharing class ChatWindowController {
                 if(!isReaction){
                     chat.Message_Status__c = 'Failed';
                 }
-                // ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'sendWhatsappMessage', 'exceptionObj' => null, 'isApiException' => true, 'statusCode' => statusCode, 'chatId' => chatId, 'moreDetails' => 'API Exception while sending a message', 'apiResponse' => JSON.serialize(response.getBody()) });
+                ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'sendWhatsappMessage', 'exceptionObj' => null, 'isApiException' => true, 'statusCode' => statusCode, 'chatId' => chatId, 'moreDetails' => 'API Exception while sending a message', 'apiResponse' => JSON.serialize(response.getBody()) });
             }
 
             update chat;
@@ -311,7 +294,7 @@ public without sharing class ChatWindowController {
                 chat.Message_Status__c = 'Failed';
                 update chat;
             }
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'sendWhatsappMessage', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => chatId, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'sendWhatsappMessage', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => chatId, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
         }
         resultMap.put('chat', chat);
         return resultMap;
@@ -423,7 +406,7 @@ public without sharing class ChatWindowController {
                 return templateData;
             }
         } catch (Exception e) {
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'getTemplateData', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' =>  e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'getTemplateData', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' =>  e.getMessage(), 'apiResponse' => null});
         }
         return null;
     }
@@ -436,10 +419,10 @@ public without sharing class ChatWindowController {
     *********************************************************
     */
     @AuraEnabled
-    public static String updateStatus(List<String> messageIds) {
+    public static List<String> updateStatus(List<String> messageIds) {
         List<WBConnect_Chat__c> chats = new List<WBConnect_Chat__c>();
+        List<String> updatedMessageIds = new List<String>();
         chats = [SELECT Id, WhatsAppMessageId__c, Message_Status__c FROM WBConnect_Chat__c WHERE Id IN :messageIds ];
-        // List<WBConnect_Configuration__mdt> wbConfig = WBConnect_Configuration__mdt.getAll().values(); 
         String accessToken = wbConfig[0].Access_Token__c;
         String endpoint = 'https://graph.facebook.com/v21.0/' + wbConfig[0].Phone_Number_Id__c + '/messages';
 
@@ -462,18 +445,17 @@ public without sharing class ChatWindowController {
 
                 Integer statusCode = response.getStatusCode();
                 if (statusCode != 200) {
-                    return response.getBody();
-                    // ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'ChatWindowController', 'methodName' => 'updateStatus', 'exceptionObj' => null, 'isApiException' => true, 'statusCode' => statusCode,'chatId' => null,  'moreDetails' => 'Error occurred for status update', 'apiResponse' => response.getBody() });
+                    ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'ChatWindowController', 'methodName' => 'updateStatus', 'exceptionObj' => null, 'isApiException' => true, 'statusCode' => statusCode,'chatId' => null,  'moreDetails' => 'Error occurred for status update', 'apiResponse' => response.getBody() });
                 }else{
                     chat.Message_Status__c = 'Seen';
+                    updatedMessageIds.add(chat.Id);
                 }
             }
             update chats;
-            return chats[0].Message_Status__c;
         } catch (Exception e) {
-            // ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'ChatWindowController', 'methodName' => 'updateStatus', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null,'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
-            return e.getMessage();
+            ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'ChatWindowController', 'methodName' => 'updateStatus', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null,'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
         }
+        return updatedMessageIds;
 
     }
     /*
@@ -497,7 +479,7 @@ public without sharing class ChatWindowController {
 
             WBConnect_Chat__c chat = new WBConnect_Chat__c();
             chat.Message__c = message;
-            chat.User__c = UserInfo.getUserId();
+            chat.Account__c = userAccountId;
             chat.Phone__c = phoneNumber;
             chat.Type_of_Message__c	= 'OutBound Messages';
             chat.Message_Status__c = null;
@@ -511,7 +493,7 @@ public without sharing class ChatWindowController {
 
             return chat;
         } catch (Exception e) {
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'createChat', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' =>  e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowController', 'methodName' => 'createChat', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' =>  e.getMessage(), 'apiResponse' => null});
             return null;
         }
     }

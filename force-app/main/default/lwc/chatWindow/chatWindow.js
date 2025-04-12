@@ -4,7 +4,6 @@ import createChat from '@salesforce/apex/ChatWindowController.createChat';
 import createChatForAWSFiles from '@salesforce/apex/ChatWindowController.createChatForAWSFiles';
 import updateReaction from '@salesforce/apex/ChatWindowController.updateReaction';
 import sendWhatsappMessage from '@salesforce/apex/ChatWindowController.sendWhatsappMessage';
-// import emojiData from '@salesforce/resourceUrl/emojis_data';
 import EMOJI_LIB from '@salesforce/resourceUrl/emojiZip';
 import updateStatus from '@salesforce/apex/ChatWindowController.updateStatus';
 import NoPreviewAvailable from '@salesforce/resourceUrl/NoPreviewAvailable';
@@ -12,9 +11,9 @@ import whatsappAudioIcon from '@salesforce/resourceUrl/whatsAppAudioIcon';
 import { loadScript } from 'lightning/platformResourceLoader';
 import AWS_SDK from "@salesforce/resourceUrl/AWSSDK";
 import getS3ConfigSettings from '@salesforce/apex/AWSFilesController.getS3ConfigSettings';
-import getLeadsForChat from '@salesforce/apex/ChatWindowController.getLeadsForChat';
-import createLead from '@salesforce/apex/ChatWindowController.createLead';
-import deleteLead from '@salesforce/apex/ChatWindowController.deleteLead';
+import getContactsForChat from '@salesforce/apex/ChatWindowController.getContactsForChat';
+import createContact from '@salesforce/apex/ChatWindowController.createContact';
+import deleteContact from '@salesforce/apex/ChatWindowController.deleteContact';
 import PROFILE from '@salesforce/resourceUrl/defaultProfile';
 import WBCChatBG from '@salesforce/resourceUrl/WBCChatBG';
 
@@ -28,7 +27,7 @@ export default class ChatWindow extends LightningElement {
     @api height;
     @track chats = [];
 
-    recordData;
+    @track recordData;
     @track groupedChats = [];
     @track messageText = '';
     @track selectedTemplate = null;
@@ -71,7 +70,7 @@ export default class ChatWindow extends LightningElement {
     @track phoneValue = '';
     @track intervalId;
 
-    @track objectApiName = 'Lead';
+    @track objectApiName = 'WBConnect_Contact__c';
     @track recordId;
     @track phoneNumber;
     @track recordName;
@@ -111,7 +110,8 @@ export default class ChatWindow extends LightningElement {
         try {
             this.getS3ConfigDataAsync();
             this.generateEmojiCategories();
-            this.getLeadsForChat();
+            this.getContactsForChat();
+            this.refreshDataIn5Secs();
         } catch (e) {
             console.error('Error in connectedCallback:::', e.message);
         }
@@ -142,17 +142,23 @@ export default class ChatWindow extends LightningElement {
         }
     }
 
-    getLeadsForChat(){
-        getLeadsForChat()
+    getContactsForChat(){
+        getContactsForChat()
             .then(result => {
                 this.contacts = Object.values(result).map(item => ({
                     Id: item.Id,
                     Name: item.Name,
                     Phone: item.Phone,
-                    unreadOutboundCount: item.unreadOutboundCount
+                    unreadOutboundCount: item.unreadOutboundCount > 0 ? item.unreadOutboundCount : null,
                 }));
                 this.filteredContacts = [...this.contacts];
-                console.log(this.filteredContacts);
+
+                const defaultContact = this.filteredContacts.find(contact => contact.unreadOutboundCount > 0);
+                if(this.recordId != null){
+                    if (defaultContact?.Id == this.recordId ) {
+                        this.getInitialData(true);
+                    }
+                }
             })
             .catch(error => {
                 console.error('Error fetching chat data:', error);
@@ -178,7 +184,6 @@ export default class ChatWindow extends LightningElement {
         
         this.recordId = contactId;
         this.getInitialData();
-        // this.refreshDataIn5Secs();
         this.showSpinner = true;
     }
 
@@ -198,23 +203,24 @@ export default class ChatWindow extends LightningElement {
     handleCreatePopup(){
         // Validate required fields
         if (!this.nameValue || this.nameValue.trim() === '' || !this.phoneValue || this.phoneValue.trim() === '') {
-            this.showToastMessage('Error', 'Name & Phone is required.', 'error');
+            this.showMessageToast('Error', 'Name & Phone is required.', 'error');
             return;
         }
+        console.log(this.nameValue, this.phoneValue);
         
-        // Call Apex to create Lead
-        createLead({ name: this.nameValue, phone: this.phoneValue})
+        // Call Apex to create Contact
+        createContact({ name: this.nameValue, phone: this.phoneValue})
             .then(result => {
                 console.log({result});
-                // this.showToastMessage('Success', 'Contact Created Successfully!', 'success');
-                this.getLeadsForChat();
+                this.showMessageToast('Success', 'Contact Created Successfully!', 'success');
+                this.getContactsForChat();
                 this.recordId = result;
                 this.handleCloseCreatePopup(); // Close popup after success
                 this.getInitialData();
                 this.showSpinner = true;
             })
             .catch(error => {
-                this.showToast('Error', error.body.message, 'error');
+                this.showMessageToast('Error', error.body.message, 'error');
             });
     }
 
@@ -231,24 +237,25 @@ export default class ChatWindow extends LightningElement {
     }
 
     handleDeleteYesPopup(){
-        deleteLead({leadId: this.recordId})
+        deleteContact({conId: this.recordId})
             .then(result => {
                 console.log({result});
-                // this.showToastMessage('Success', 'Contact Deleted Successfully!', 'success');
-                this.getLeadsForChat();
+                this.showMessageToast('Success', 'Contact Deleted Successfully!', 'success');
+                this.getContactsForChat();
                 this.recordName = null;
                 this.phoneNumber = null;
                 this.recordId = null;
                 this.handleDeleteNoPopup();
             })
             .catch(error => {
-                // this.showToast('Error', error.body.message, 'error');
+                this.showMessageToast('Error', error.body.message, 'error');
             })
     }
 
     refreshDataIn5Secs(){
         this.intervalId = setInterval(() => {
-            this.getInitialData(true);
+            this.getContactsForChat();
+            // this.getInitialData(true);
         }, 5000);
     }
 
@@ -282,17 +289,27 @@ export default class ChatWindow extends LightningElement {
                     this.phoneNumber = combinedData.phoneNumber;
                     this.recordName = combinedData.recordName;
                     this.showSpinner = false;
-                    this.processChats(true);
+                    this.processChats(true, hideSpinner);
                     
                     let chatIdsToSeen = [];
                     this.chats.filter(ch => ch.Type_of_Message__c != 'Outbound Messages').forEach(ch =>{
                         if(ch.Message_Status__c!='Seen') chatIdsToSeen.push(ch.Id);
                     })
-                    console.log('chatIdsToSeen - ' , chatIdsToSeen);
-                    updateStatus({messageIds:chatIdsToSeen})
+                    if(chatIdsToSeen.length > 0){
+                        updateStatus({messageIds: chatIdsToSeen})
                         .then(result => {
-                            console.log('updateStatus - ', result);
+                            this.filteredContacts = this.filteredContacts.map(contact => {
+                                if (contact.Id === this.recordId) {
+                                    const updatedCount = contact.unreadOutboundCount - result.length;
+                                    return {
+                                        ...contact,
+                                        unreadOutboundCount: updatedCount > 0 ? updatedCount : null// set to null if <= 0
+                                    };
+                                }
+                                return contact;
+                            });
                         })
+                    }
                 })
                 .catch(e => {
                     this.showSpinner = false;
@@ -304,7 +321,7 @@ export default class ChatWindow extends LightningElement {
         }
     }
 
-    processChats(needToScroll){
+    processChats(needToScroll, dontScroll){
         try {
             this.noChatMessages = this.chats?.length < 1 ? true : false;
             if(this.noChatMessages) {
@@ -318,7 +335,8 @@ export default class ChatWindow extends LightningElement {
                 ch.isVideo = ch.Message_Type__c == 'Video';
                 ch.isAudio = ch.Message_Type__c == 'Audio';
                 ch.isDoc = ch.Message_Type__c == 'Document';
-                ch.isOther = !['Text', 'Image', 'Template', 'Video', 'Document', 'Audio'].includes(ch.Message_Type__c) ;
+                ch.isFlow = ch.Message_Type__c == 'Interactive';
+                ch.isOther = !['Text', 'Image', 'Template', 'Video', 'Document', 'Audio', 'Interactive'].includes(ch.Message_Type__c) ;
                 ch.isTemplate = ch.Message_Type__c == 'Template';
                 ch.messageBy = ch.Type_of_Message__c == 'Outbound Messages' ? 'You' : this.recordName;
                 if ((ch.isDoc || ch.isAudio) && ch.File_Data__c) {
@@ -368,9 +386,6 @@ export default class ChatWindow extends LightningElement {
                 let chat = {
                     ...ch,
                     className: ch.Type_of_Message__c === 'Outbound Messages' ? 'sent-message' : 'received-message',
-                    // isSent: ch.Message_Status__c === 'Sent',
-                    // isDelivered: ch.Message_Status__c === 'Delivered',
-                    // isSeen: ch.Message_Status__c === 'Seen',
                     isTick : ['Sent', 'Delivered', 'Seen'].includes(ch.Message_Status__c), 
                     isFailed: ch.Message_Status__c === 'Failed',
                     isSending: ch.Message_Status__c == null,
@@ -394,7 +409,9 @@ export default class ChatWindow extends LightningElement {
             }));
             
             this.showSpinner = false;
-            if(needToScroll) this.scrollBottom = true;
+            if(needToScroll && !dontScroll){
+                this.scrollBottom = true;
+            }
             this.checkLastMessage();
             console.log(this.groupedChats);
         } catch (e) {

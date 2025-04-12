@@ -1,11 +1,11 @@
 import { LightningElement, track } from 'lwc';
-import insertLeads from '@salesforce/apex/ImportDataController.insertLeads';
+import insertContacts from '@salesforce/apex/ImportDataController.insertContacts';
 import homePageBGImg from '@salesforce/resourceUrl/homePageBG';
 import NoFileImage from '@salesforce/resourceUrl/NoFileImage';
 
 export default class ImportDataComponent extends LightningElement {
     @track isLoading = false;
-    @track leadData = [];
+    @track contactData = [];
     backgroundStyle = `background-image: url(${homePageBGImg});`;
     noFile = NoFileImage;
 
@@ -61,19 +61,19 @@ export default class ImportDataComponent extends LightningElement {
                 return;
             }
 
-            this.leadData = parsed;
+            this.contactData = parsed;
             this.isLoading = false;
         };
         reader.readAsText(file);
     }
 
     handleInsertRecords() {
-        if (!this.leadData.length) return;
+        if (!this.contactData.length) return;
 
         this.isLoading = true;
-        insertLeads({ leadDataList: this.leadData })
+        insertContacts({ conDataList: this.contactData })
             .then(() => {
-                this.showMessageToast('Success', 'Leads inserted successfully!', 'success');
+                this.showMessageToast('Success', 'Contacts inserted successfully!', 'success');
                 this.handleCancel();
             })
             .catch((error) => {
@@ -85,7 +85,7 @@ export default class ImportDataComponent extends LightningElement {
     }
 
     handleCancel() {
-        this.leadData = [];
+        this.contactData = [];
         const fileInput = this.template.querySelector('input[type="file"]');
         if (fileInput) fileInput.value = '';
     }
