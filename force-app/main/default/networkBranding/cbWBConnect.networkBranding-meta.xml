@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NetworkBranding xmlns="http://soap.sforce.com/2006/04/metadata">
+    <loginFooterText>MV Clouds Private Limited</loginFooterText>
+    <loginLogo>Experiences_Shared_Document_Folder/WBConnect8</loginLogo>
+    <loginLogoName>WBConnect+</loginLogoName>
+    <loginPrimaryColor>#25D366</loginPrimaryColor>
+    <loginQuaternaryColor>#FFFFFF</loginQuaternaryColor>
+    <network>WBConnect+</network>
+    <primaryColor>#25D366</primaryColor>
+    <primaryComplementColor>#FFFFFF</primaryComplementColor>
+    <quaternaryColor>#FFFFFF</quaternaryColor>
+    <quaternaryComplementColor>#222222</quaternaryComplementColor>
+    <secondaryColor>#51606E</secondaryColor>
+    <tertiaryColor>#DDE4E9</tertiaryColor>
+    <tertiaryComplementColor>#222222</tertiaryComplementColor>
+    <zeronaryColor>#51606E</zeronaryColor>
+    <zeronaryComplementColor>#f5f4f4</zeronaryComplementColor>
+</NetworkBranding>

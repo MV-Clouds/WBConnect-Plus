@@ -99,7 +99,6 @@
   .button-container {
     display: flex;
     justify-content: space-evenly;
-    gap: 40px;
   }
   
   lightning-button{
@@ -162,4 +161,5 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    font-size: larger;
   }

@@ -1,0 +1,13 @@
+<template>
+    <template if:true={showConfig}>
+        <c-automation-config onnavigate={handleNavigate}></c-automation-config>
+    </template>
+    
+    <template if:true={showPath}>
+        <c-automation-path
+            record-id={recordId}
+            template-type={templateType}
+            onnavigate={handleNavigate}>
+        </c-automation-path>
+    </template>
+</template>

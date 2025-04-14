@@ -1,0 +1,29 @@
+<template>
+    <div class="slds-grid slds-wrap slds-align_absolute-center slds-p-around_small header-bar">
+        <div class="slds-col slds-size_1-of-2">
+            <img src={logoUrl} alt="WBConnect Plus" class="logo" />
+        </div>
+
+        <!-- <div class="slds-col slds-size_2-of-4 slds-text-align_center">
+            <nav class="custom-tabs">
+                <a href="#" class="tab-link active-header-tab">Home</a>
+                <a href="/embedded-signup" class="tab-link">Embedded-Signup</a>
+                <a href="/login" class="tab-link">Listings</a>
+                <a href="/login" class="tab-link">Properties</a>
+                <a href="/login" class="tab-link">Inquiries</a>
+            </nav>
+        </div> -->
+
+        <div class="slds-col slds-size_1-of-2 slds-text-align_right profile-container" style="position: relative;">
+            <img src={profileUrl} alt="Profile" class="avatar profileToggle" onclick={handleToggleDropdown} />
+            
+            <template if:true={isdropdownOpen}>
+                <div class="profile-dropdown slds-box slds-theme_default" id="profileMenu">
+                    <!-- <button class="profile-btn" onclick={handleDropdownButtonClick}>My Profile</button> -->
+                    <button class="reset-btn" onclick={handleResetPass}>Reset Password</button>
+                    <button class="slds-button slds-button_destructive slds-button_stretch" onclick={handleLogout}>Logout</button>
+                </div>
+            </template>
+        </div>
+    </div>    
+</template>

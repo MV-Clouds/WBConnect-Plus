@@ -1,11 +1,10 @@
-public with sharing class WhatsAppFlowController {
+public without sharing class WhatsAppFlowController {
 
-    public static List<WBConnect_Meta_Configuration__c> wbConfig = [SELECT Id, Access_Token__c, Phone_Number_Id__c FROM WBConnect_Meta_Configuration__c WHERE Is_WBA_Configured__c = true LIMIT 1]; 
-    public static String userAccountId = WhatsAppWebhook.getUserAccount();
+    public static List<WBConnect_Meta_Configuration__c> wbConfig = [SELECT Id, Access_Token__c, Phone_Number_Id__c, Business_Account_Id__c FROM WBConnect_Meta_Configuration__c WHERE Is_WBA_Configured__c = true LIMIT 1]; 
     
     @AuraEnabled
     public static List<sObject> getWhatsAppFlows() {
-        List<WBConnect_Flow__c> flowRecs = [SELECT Id, Flow_Name__c, Status__c, Flow_Id__c, Category__c, Template_Type__c, LastModifiedDate, CreatedDate FROM WBConnect_Flow__c WITH SECURITY_ENFORCED ORDER BY LastModifiedDate DESC];
+        List<WBConnect_Flow__c> flowRecs = [SELECT Id, Flow_Name__c, Status__c, Flow_Id__c, Category__c, Template_Type__c, LastModifiedDate, CreatedDate FROM WBConnect_Flow__c  ORDER BY LastModifiedDate DESC];
         return flowRecs;
     }
 
@@ -13,7 +12,7 @@ public with sharing class WhatsAppFlowController {
     public static String getJSONData(String type) {
         String jsonString = '';
         try {
-            List<WBC_Flows_JSON__mdt> FlowJSON = [SELECT Id, Default_JSON__c, Collect_purchase_interest_JSON__c, Customer_support_JSON__c, Get_feedback_JSON__c, Send_a_survey_JSON__c FROM WBC_Flows_JSON__mdt WITH SECURITY_ENFORCED LIMIT 1];
+            List<WBC_Flows_JSON__mdt> FlowJSON = [SELECT Id, Default_JSON__c, Collect_purchase_interest_JSON__c, Customer_support_JSON__c, Get_feedback_JSON__c, Send_a_survey_JSON__c FROM WBC_Flows_JSON__mdt  LIMIT 1];
             
             if(type == 'Default') {
                 jsonString = FlowJSON[0].Default_JSON__c;
@@ -66,7 +65,6 @@ public with sharing class WhatsAppFlowController {
                 flow.Flow_JSON__c = flowJson;
                 flow.Category__c = String.join(categories, ';');
                 flow.Template_Type__c = templateType;
-                flow.Account__c = userAccountId;
 
                 insert flow;
                 return flowId;
@@ -131,7 +129,7 @@ public with sharing class WhatsAppFlowController {
                 Map<String, Object> responseMap = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
                 Boolean successVal = (Boolean) responseMap.get('success');
                 if(successVal == true) {
-                    List<WBConnect_Flow__c> flowRecs = [SELECT Id, Status__c, Flow_Id__c FROM WBConnect_Flow__c WHERE Flow_Id__c = :flowId WITH SECURITY_ENFORCED LIMIT 1];
+                    List<WBConnect_Flow__c> flowRecs = [SELECT Id, Status__c, Flow_Id__c FROM WBConnect_Flow__c WHERE Flow_Id__c = :flowId  LIMIT 1];
                     if(flowRecs.size() > 0){
                         flowRecs[0].Status__c = 'Published';
                         update as user flowRecs;
@@ -162,7 +160,7 @@ public with sharing class WhatsAppFlowController {
             HttpResponse response = http.send(request);
             
             if (response.getStatusCode() == 200) {
-                List<WBConnect_Flow__c> flowRecs = [SELECT Id, Status__c, Flow_Id__c FROM WBConnect_Flow__c WHERE Flow_Id__c = :flowId WITH SECURITY_ENFORCED LIMIT 1];
+                List<WBConnect_Flow__c> flowRecs = [SELECT Id, Status__c, Flow_Id__c FROM WBConnect_Flow__c WHERE Flow_Id__c = :flowId  LIMIT 1];
                 if(flowRecs.size() > 0){
                     delete as user flowRecs[0];
                 }
@@ -189,7 +187,7 @@ public with sharing class WhatsAppFlowController {
             HttpResponse response = http.send(request);
             
             if (response.getStatusCode() == 200) {
-                List<WBConnect_Flow__c> flowRecs = [SELECT Id, Status__c, Flow_Id__c FROM WBConnect_Flow__c WHERE Flow_Id__c = :flowId WITH SECURITY_ENFORCED LIMIT 1];
+                List<WBConnect_Flow__c> flowRecs = [SELECT Id, Status__c, Flow_Id__c FROM WBConnect_Flow__c WHERE Flow_Id__c = :flowId  LIMIT 1];
                 if(flowRecs.size() > 0){
                     flowRecs[0].Status__c = 'Deprecated';
                     update as user flowRecs[0];

@@ -212,9 +212,16 @@
     color: black;
 }
 
-.last-time {
-    color: #999;
+.unread-count {
     font-size: 0.8rem;
+    background-color: #25D366;
+    border-radius: 50%;
+    color: white;
+    width: 21px;
+    height: 21px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .messageTime {

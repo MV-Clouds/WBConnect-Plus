@@ -1,7 +1,8 @@
-import { LightningElement, api, track, wire } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 import getTemplateData from '@salesforce/apex/ChatWindowController.getTemplateData';
 import sendWhatsappMessage from '@salesforce/apex/ChatWindowController.sendWhatsappMessage';
 import createChat from '@salesforce/apex/ChatWindowController.createChat';
+import NoPreviewAvailable from '@salesforce/resourceUrl/NoPreviewAvailable';
 
 export default class TemplatePreview extends LightningElement {
     @api templateId;
@@ -9,10 +10,12 @@ export default class TemplatePreview extends LightningElement {
     @api objectApiName;
     @api mobileNumber;
     @api showButtons;
-
     @track templateData;
     @track isTextHeader;
     @track isImageHeader;
+    @track isVideoHeader;
+    @track isDocHeader;
+    @track tempHeader;
     @track headerBody;
     @track templateBody;
     @track footerBody;
@@ -21,7 +24,8 @@ export default class TemplatePreview extends LightningElement {
     @track bodyParams;
     @track isTemplateDeleted;
     @track isUpdateBody;
-
+    @track buttonList=[];
+    NoPreviewAvailableImg = NoPreviewAvailable;
     @track showSpinner = false;
 
     connectedCallback(){
@@ -62,13 +66,51 @@ export default class TemplatePreview extends LightningElement {
                 
                 this.isTextHeader = this.templateData?.Header_Type__c === 'Text' ? true : false;
                 this.isImageHeader = this.templateData?.Header_Type__c === 'Image' ? true : false;
+                this.isVideoHeader = this.templateData?.Header_Type__c === 'Video' ? true : false;
+                this.isDocHeader = this.templateData?.Header_Type__c === 'Document' ? true : false;
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(this.templateData?.Header_Body__c, "text/html");
                 this.headerBody = doc.documentElement.textContent;
                 
                 this.templateBody = this.templateData?.Template_Body__c;
+                console.log(this.templateBody);
+                if (this.templateData?.Template_Category__c === 'Authentication') {
+                    this.templateBody = '{{code}} ' + this.templateBody;
+                }
+                console.log(this.templateBody);
                 this.footerBody = this.templateData?.Footer_Body__c;
-                this.buttonLabel = this.templateData?.Button_Label__c;
+
+                if(this.templateData.Header_Type__c=='Image'){
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(this.headerBody, "text/html");
+                    this.headerBody = doc.documentElement.textContent || "";
+                }
+                else if(this.templateData.Header_Type__c=='Video'){
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(this.headerBody, "text/html");
+                    this.headerBody = doc.documentElement.textContent || "";
+                }
+                else if(this.templateData.Header_Type__c=='Document'){
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(this.headerBody, "text/html");
+                    this.headerBody = doc.documentElement.textContent || "";
+                }
+                else{
+                    this.headerBody = this.headerBody ||'';
+                }
+
+                const buttonBody = this.templateData.Button_Body__c ? JSON.parse(this.templateData.Button_Body__c) : []
+                this.buttonList = buttonBody.map((buttonLabel, index) => {
+                  
+                const type = buttonLabel.type
+                    return {
+                        id: index,
+                        btntext: buttonLabel.text.trim(),
+                        btnType: type,
+                        iconName: this.getIconName(type)
+                    }
+                })
+
                 this.showSpinner = false;
 
                 if(templateData.headerParams) this.headerParams = templateData.headerParams;
@@ -86,6 +128,23 @@ export default class TemplatePreview extends LightningElement {
         }
     }
 
+    getIconName(btntype) {
+        switch (btntype) {
+            case 'QUICK_REPLY':
+                return 'utility:reply';
+            case 'PHONE_NUMBER':
+                return 'utility:call';
+            case 'URL':
+                return 'utility:new_window';
+            case 'COPY_CODE':
+                return 'utility:copy';
+            case 'Flow':
+                return 'utility:file';
+            default:
+                return 'utility:question'; 
+        }
+    }
+
     handleBack(){
         try {
             this.dispatchEvent(new CustomEvent('back'));
@@ -100,17 +159,19 @@ export default class TemplatePreview extends LightningElement {
             createChat({chatData: {message: '', templateId: this.templateId, messageType: 'template', recordId: this.recordId, replyToChatId: null, phoneNumber: this.mobileNumber}})
             .then(chat => {
                 if(chat){
-                    let templatePayload = this.createJSONBody(this.mobileNumber, "template", {
-                        templateName: this.templateData.Template_Name__c,
-                        languageCode: this.templateData.Language__c,
+                    const buttonValue = this.templateData.Button_Body__c != undefined ? JSON.parse(this.templateData.Button_Body__c) : '';
+                    
+                    const templatePayload = this.createJSONBody(this.mobileNumber, "template", {
+                        templateName: this.templateData?.Template_Name__c,
+                        languageCode: this.templateData?.Language__c,
+                        headerImageURL: this.templateData?.Header_Body__c,
+                        headerType:this.templateData?.Header_Type__c,
                         headerParameters: this.headerParams,
-                        bodyParameters: this.bodyParams,
-                        buttonLabel: this.templateData.Button_Label__c,
-                        buttonType: this.templateData.Button_Type__c,
-                        isHeaderImage: this.isImageHeader,
-                        headerImageURL: this.headerBody
+                        bodyParameters: this.bodyParams || '',
+                        buttonLabel: this.templateData?.Button_Label__c || '',
+                        buttonType: this.templateData?.Button_Type__c || '',
+                        buttonValue : buttonValue
                     });
-                    // console.log('the Payload is :: :', templatePayload);
 
                     sendWhatsappMessage({jsonData: templatePayload, chatId: chat.Id, isReaction: false, reaction: null})
                     .then(result => {
@@ -121,69 +182,197 @@ export default class TemplatePreview extends LightningElement {
                     })
                 }else{
                     this.showSpinner = false;
-                    console.log('there was some error sending the message!');
+                    console.error('there was some error sending the message!');
                 }
             })
             .catch((e) => {
                 this.showSpinner = false;
-                console.log('Error in handleSelectTemplate > createChat :: ', e);
+                console.error('Error in handleSelectTemplate > createChat :: ', e);
             })
         } catch (e) {
-            console.log('Error in function handleSend:::', e.message);
+            console.error('Error in function handleSend:::', e.message);
         }
     }
 
-    createJSONBody(to, type, data){
+    createJSONBody(to, type, data) {
         try {
-                let payload = `{ "messaging_product": "whatsapp", "to": "${to}", "type": "${type}"`;
-                payload += `, "template": { 
-                    "name": "${data.templateName}",
-                    "language": { "code": "${data.languageCode}" }`;
-                let components = [];
-                if (data.headerParameters && data.headerParameters.length > 0) {
-                    let headerParams = data.headerParameters.map(
-                        (param) => `{ "type": "text", "text": "${param}" }`
-                    ).join(", ");
-                    components.push(`{ 
-                        "type": "header", 
-                        "parameters": [ ${headerParams} ] 
-                    }`);
+            const randomCode = Math.floor(Math.random() * 900000) + 100000;
+            // Convert the integer to a string
+            const randomCodeStr = String(randomCode);
+
+            let payload = {
+                messaging_product: "whatsapp",
+                to: to,
+                type: type,
+                template: {
+                    name: data.templateName,
+                    language: {
+                        code: data.languageCode
+                    }
                 }
-                if(data.isHeaderImage && data.headerImageURL){
-                    components.push(`{ 
-                        "type": "header", 
-                        "parameters": [ { "type": "image", "image": { "link":"${data.headerImageURL}" } } ] 
-                    }`);
-                }
-                if (data.bodyParameters && data.bodyParameters.length > 0) {
-                    let bodyParams = data.bodyParameters.map(
-                        (param) => `{ "type": "text", "text": "${param}" }`
-                    ).join(", ");
-                    components.push(`{ 
-                        "type": "body", 
-                        "parameters": [ ${bodyParams} ] 
-                    }`);
-                }
-                // if (data.buttonLabel && data.buttonType) {
-                //     components.push(`{ 
-                //         "type": "button", 
-                //         "sub_type": "${data.buttonType}", 
-                //         "index": 0, 
-                //         "parameters": [{ 
-                //             "type": "text", 
-                //             "text": "${data.buttonLabel}" 
-                //         }] 
-                //     }`);
-                // }
-                if (components.length > 0) {
-                    payload += `, "components": [ ${components.join(", ")} ]`;
-                }
-                payload += ` }`; 
-                payload += ` }`;
+            };
+    
+            let components = [];
+    
+            // Header Parameters (Text)
+            if (data.headerParameters && data.headerParameters.length > 0) {
+                let headerParams = data.headerParameters.map((param) => ({
+                    type: "text",
+                    text: param
+                }));
+    
+                components.push({
+                    type: "header",
+                    parameters: headerParams
+                });
+            }
+    
+            // Header Type (Image)
+            if (data.headerType === 'Image' && data.headerImageURL) {
+                components.push({
+                    type: "header",
+                    parameters: [
+                        {
+                            type: "image",
+                            image: {
+                                link: data.headerImageURL
+                            }
+                        }
+                    ]
+                });
+            } else if (data.headerType === 'Document' && data.headerImageURL) {
+                components.push({
+                    type: "header",
+                    parameters: [
+                        {
+                            type: "document",
+                            document: {
+                                link: data.headerImageURL
+                            }
+                        }
+                    ]
+                });
+            } else if (data.headerType === 'Video' && data.headerImageURL) {
+                components.push({
+                    type: "header",
+                    parameters: [
+                        {
+                            type: "video",
+                            video: {
+                                link: data.headerImageURL
+                            }
+                        }
+                    ]
+                });
+            }
+    
+            // Body Parameters
+            if (data.bodyParameters && data.bodyParameters.length > 0) {
+                let bodyParams = data.bodyParameters.map((param) => ({
+                    type: "text",
+                    text: param
+                }));
+    
+                components.push({
+                    type: "body",
+                    parameters: bodyParams
+                });
+            } else if(this.templateData.Template_Category__c == 'Authentication'){
+                components.push({
+                    type: "body",
+                    parameters: [
+                        {
+                            type: "text",
+                            text: randomCodeStr
+                        }
+                    ]
+                });
+            }
+    
+            // Button Handling
+            if (data.buttonValue && data.buttonValue.length > 0) {
+                let buttons = data.buttonValue.map((button, index) => {
+                    switch (button.type.toUpperCase()) {
+                        case "PHONE_NUMBER":
+                            components.push( {
+                                type: "button",
+                                sub_type: "voice_call",
+                                index: index,
+                                parameters: [
+                                    {
+                                        type: "text",
+                                        text: button.phone_number
+                                    }
+                                ]
+                            });
+                            break;
+                        case "URL":
+                            break;
+                        case "QUICK_REPLY":
+                            break;
+                        case "FLOW":
+                            components.push( {
+                                    type: "button",
+                                    sub_type: "flow",
+                                    index: index,
+                                    parameters: [
+                                        {
+                                            "type": "payload",
+                                            "payload": "PAYLOAD"
+                                        }
+                                    ]   
+                                });
+                            break;
+                        case 'copy_code' :
+                        case "COPY_CODE":
+                        case "COUPON_CODE":
+                            components.push( {
+                                type: "button",
+                                sub_type: "copy_code",
+                                index: index,
+                                parameters: [
+                                    {
+                                        type :'coupon_code',
+                                        coupon_code : button.example
+                                    }
+                                ]
+                            }); 
+                            break;
+                        case "OTP":
+                            if (button.otp_type && button.otp_type.toUpperCase() === "COPY_CODE") {
+                                components.push( {
+                                    type: "button",
+                                    sub_type: "url",
+                                    index: index,
+                                    parameters: [
+                                        {
+                                            type : 'text',
+                                            text : randomCodeStr
+                                        }
+                                        
+                                    ]
+                                });
+                            } else {
+                                console.warn(`OTP button at index ${index} missing otp_code parameter.`);
+                                return null;
+                            }
+                            break;
+                        default:
+                            console.warn(`Unknown button type: ${button.type}`);
+                            return null;
+                    }
+                }).filter((button) => button !== null);
+            }
             
-                return payload;
+            // Add components if available
+            if (components.length > 0) {
+                payload.template.components = components;
+            }
+            
+            // Convert the object to a JSON string
+            return JSON.stringify(payload);
         } catch (e) {
-            console.log('Error in function createJSONBody:::', e.message);
+            console.error('Error in function createJSONBody:::', e.message);
         }
     }
 }

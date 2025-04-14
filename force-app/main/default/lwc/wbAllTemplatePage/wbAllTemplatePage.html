@@ -1,0 +1,112 @@
+<!--
+  @description       : 
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             : 
+  @last modified on  : 04-06-2025
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+-->
+<template>
+    <template if:true={isTemplateVisible}>
+        <div class="slds-theme_default main" style={WBConnectBackground} >
+            <template if:true={isLoading}>
+                <div class="spinner-overlay">
+                    <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+                </div>
+            </template>
+           
+            <div class="heading">
+
+                <div class="left-align">Message Template</div>
+    
+                <div class="right-align">
+                    <div class="input-div">
+                        <lightning-input variant="label-hidden" class="filter search-div" name="searchInput" type="search" placeholder="Search Name"
+                            onchange={handleChange}></lightning-input>
+                    </div>
+    
+                    <div class="btns">
+                        <button class="custom-button" onclick={showCreateTemplate}>
+                            <lightning-icon icon-name="utility:add" alternative-text="Add" size="x-small"
+                                class="left-icon"></lightning-icon>
+                            <span>Create Template</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="table-container">
+                <!-- Custom Table -->
+                <template if:false={showNoRecordsMessage}>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="sr-no">No.</th>
+                                <th>Template Name</th>
+                                <th>Category</th>
+                                <th>Language</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template if:true={allRecords.length}>
+                                <template for:each={filteredRecords} for:item="record">
+                                    <!-- {record} -->
+                                    <tr key={record.id}>
+                                        <td class="sr-no">{record.serialNumber}</td>
+                                        <td data-id={record.Id} title={record.Template_Name__c} class="template-name">{record.Template_Name__c}</td>
+                                        <td>{record.Template_Category__c}</td>
+                                        <td>{record.LanguageLabel}</td>
+                                        <td><p class={record.Status__c}>{record.Status__c}</p></td>
+                                        <td class="tablebtns">
+                                            <button class="action-buttons" onclick={previewTemplate} data-id={record.id}>
+                                                <!-- {record.id} -->
+                                                <img src={previewIcon} class="action" alt="preview" >
+                                            </button>
+                                            <button disabled={record.isButtonDisabled} class="action-buttons" onclick={editTemplate} data-id={record.id}>
+                                                <img src={editIcon} class={record.cssClass} alt="edit" >
+                                            </button>
+                                            <button class="action-buttons" onclick={deleteTemplate} data-id={record.id}>
+                                                <img src={trashIcon} class="action trash" alt="delete" >
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </template>
+                            
+                        </tbody>
+                    </table>
+                </template>
+                    <template if:true={showNoRecordsMessage}>
+                        <div class="no-records-message">
+                            <div class="empty-state">
+                                <div class="empty-state__content">
+                                    <div class="empty-state__icon">
+                                        <img src={emptyState} alt="" draggable="false">
+                                    </div>
+                                    <div class="empty-state__message">No Data Available to Show.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+            </div>
+    
+        </div>
+    </template>
+
+    <template if:true={isCreateTemplate}>
+        <c-wb-create-template-page edittemplateid={editTemplateId}></c-wb-create-template-page>
+    </template>
+    
+    <template if:true={showPopup}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container preview-container">
+                <div class="slds-modal__content slds-p-around_medium template-preview" style={getwbiTemplateBg} id="modal-content-id-2">
+                    <c-wb-preview-template-page templateid={selectedTemplateId} onclosepopup={handlePopupClose}></c-wb-preview-template-page>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>
