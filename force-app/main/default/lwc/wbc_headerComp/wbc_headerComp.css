@@ -1,0 +1,110 @@
+.logo {
+    width: 100px;
+}
+.header-bar{
+    background-size: cover;
+    background : linear-gradient(120deg, #E6F8FA 0%, #D2F3F7 50%, #CCEFEF 100%);
+}
+
+.custom-tabs {
+    font-size: medium;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 1rem 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.tab-link {
+    text-decoration: none;
+    font-weight: 600;
+    color: #25D366; /* WhatsApp green */
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.tab-link:hover {
+    background-color: #25D366;
+    color: white;
+    box-shadow: 0px 2px 8px rgba(37, 211, 102, 0.4);
+    text-decoration: none;
+}
+
+.active-header-tab {
+    background-color: #25D366 !important;
+    color: white !important;
+    box-shadow: 0px 2px 8px rgba(37, 211, 102, 0.4);
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0%;
+    z-index: 10;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    min-width: 160px;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.profile-dropdown.show {
+    display: flex;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.profile-btn{
+    display: flex;
+    width: max-content;
+    justify-content: center;
+    height: 2rem;
+    align-items: center;
+    background-color: #25D366;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    /* padding: 0.2rem 0.5rem; */
+    border: none;
+    margin-bottom: 3px;
+    /* font-size: small; */
+    font-weight: 500;
+    color: white;
+    width: 8rem;
+}
+.profile-btn:hover{
+    background-color: #419861;
+}
+
+.reset-btn{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    height: 2rem;
+    align-items: center;
+    background-color: #5487ee;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    /* padding: 0.2rem 0.5rem; */
+    border: none;
+    margin-bottom: 3px;
+    /* font-size: small; */
+    font-weight: 500;
+    color: white;
+}
+
+.reset-btn:hover{
+    background-color: #345597;
+}
