@@ -16,6 +16,8 @@
 **/
 public with sharing class ExceptionHandler {
 
+    public static String userAccountId = WhatsAppWebhook.getUserAccount();
+
     /*
     *********************************************************
     @description     : Method is used to create a exception log record
@@ -50,8 +52,9 @@ public with sharing class ExceptionHandler {
             }
             exc.More_Details__c = (String)exceptionData.get('moreDetails');
             exc.Response__c = (String)exceptionData.get('apiResponse');
+            exc.Account__c = userAccountId;
 
-            insert as user exc;
+            insert exc;
         } catch (Exception e) {
             System.debug('Error in logException: ' + e.getMessage());
         }

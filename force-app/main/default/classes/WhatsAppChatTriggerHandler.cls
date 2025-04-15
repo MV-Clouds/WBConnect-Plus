@@ -7,7 +7,7 @@
 *--------------------------------------------------------------------------------
 **/
 
-public without sharing class WhatsAppChatTriggerHandler {
+public with sharing class WhatsAppChatTriggerHandler {
     private List<WBConnect_Chat__c> recordNewList = new List<WBConnect_Chat__c>();
     private List<WBConnect_Chat__c> recordOldList = new List<WBConnect_Chat__c>();
     private Map<Id, WBConnect_Chat__c> recordNewMap = new Map<Id, WBConnect_Chat__c>();

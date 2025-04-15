@@ -36,11 +36,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <template for:each={contactData} for:item="con">
-                            <tr key={con.key}>
-                                <td class="sr-no">{con.RowNumber}</td>
-                                <td>{con.Name}</td>
-                                <td>{con.Phone}</td>
+                        <template for:each={contactData} for:item="lead">
+                            <tr key={lead.key}>
+                                <td class="sr-no">{lead.RowNumber}</td>
+                                <td>{lead.Name}</td>
+                                <td>{lead.Phone}</td>
                             </tr>
                         </template>
                     </tbody>

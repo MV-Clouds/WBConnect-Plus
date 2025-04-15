@@ -11,6 +11,7 @@ global without sharing class EmbeddedSignUpController {
     public static String clientId {get; set;}
     public static String configurationId {get; set;}
     public static String clientSecret {get; set;}
+    public static String userAccountId = WhatsAppWebhook.getUserAccount();
 
     // Constructor to load the metadata record
     public EmbeddedSignUpController() {
@@ -37,7 +38,7 @@ global without sharing class EmbeddedSignUpController {
 
             List<EmbeddedSignUpConfig__c> embeddedConfig = [SELECT Id, Config_Id__c, Client_Secret__c, Client_Id__c FROM EmbeddedSignUpConfig__c];
             if(embeddedConfig.size() < 1){
-                ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsappConfigController', 'methodName' => 'saveFBLoginDetails', 'exceptionObj' => null, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => 'No Embedded Sign Up Configuration Found!', 'apiResponse' => null });
+                ExceptionHandler.logException(new Map<String, Object>{'className' => 'EmbeddedSignUpController', 'methodName' => 'saveFBLoginDetails', 'exceptionObj' => null, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => 'No Embedded Sign Up Configuration Found!', 'apiResponse' => null });
                 return 'Failure';
             }
             
@@ -59,7 +60,7 @@ global without sharing class EmbeddedSignUpController {
             }
         }catch(Exception e){
             System.debug('saveFBLoginDetails');
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsappConfigController', 'methodName' => 'saveFBLoginDetails', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => 'Could not save the embedded sign up details!', 'apiResponse' => null });
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'EmbeddedSignUpController', 'methodName' => 'saveFBLoginDetails', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => 'Could not save the embedded sign up details!', 'apiResponse' => null });
         }
         return null;
         
@@ -74,7 +75,7 @@ global without sharing class EmbeddedSignUpController {
             }
         }catch(Exception e){
             System.debug('unlinkAccount');
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsappConfigController', 'methodName' => 'unlinkAccount', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => 'Could not clear the configuration values!', 'apiResponse' => null });
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'EmbeddedSignUpController', 'methodName' => 'unlinkAccount', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => 'Could not clear the configuration values!', 'apiResponse' => null });
         }
         return false;
     }
@@ -97,13 +98,14 @@ global without sharing class EmbeddedSignUpController {
             config.Access_Token__c = accessToken;
             config.Phone_Number_Id__c = phoneId;
             config.Is_WBA_Configured__c = configStatus;
+            config.Account__c = userAccountId;
 
             insert config;
 
             return true;
             
         } catch (Exception e) {
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsappConfigController', 'methodName' => 'saveMetaData', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => 'Could not save the embedded sign up details in the metadata!', 'apiResponse' => null });
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'EmbeddedSignUpController', 'methodName' => 'saveMetaData', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => 'Could not save the embedded sign up details in the metadata!', 'apiResponse' => null });
             return null;
         }
 

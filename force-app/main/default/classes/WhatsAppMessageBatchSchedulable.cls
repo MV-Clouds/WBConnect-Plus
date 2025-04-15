@@ -7,7 +7,7 @@
 *--------------------------------------------------------------------------------
 **/
 
-global without sharing class WhatsAppMessageBatchSchedulable implements Schedulable {
+global with sharing class WhatsAppMessageBatchSchedulable implements Schedulable {
 
     global String templateId;
     global List<WBConnect_Chat__c> chatRecs;

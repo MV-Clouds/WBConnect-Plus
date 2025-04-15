@@ -1,6 +1,7 @@
-public without sharing class WhatsAppFlowController {
+public with sharing class WhatsAppFlowController {
 
     public static List<WBConnect_Meta_Configuration__c> wbConfig = [SELECT Id, Access_Token__c, Phone_Number_Id__c, Business_Account_Id__c FROM WBConnect_Meta_Configuration__c WHERE Is_WBA_Configured__c = true LIMIT 1]; 
+    public static String userAccountId = WhatsAppWebhook.getUserAccount();
     
     @AuraEnabled
     public static List<sObject> getWhatsAppFlows() {
@@ -65,6 +66,7 @@ public without sharing class WhatsAppFlowController {
                 flow.Flow_JSON__c = flowJson;
                 flow.Category__c = String.join(categories, ';');
                 flow.Template_Type__c = templateType;
+                flow.Account__c = userAccountId;
 
                 insert flow;
                 return flowId;
@@ -114,7 +116,6 @@ public without sharing class WhatsAppFlowController {
     @AuraEnabled
     public static String publishWhatsAppFlow(String flowId) {
         try {
-            List<WBConnect_Configuration__mdt> wbConfig = WBConnect_Configuration__mdt.getAll().values(); 
 
             String accessToken = wbConfig[0].Access_Token__c;
             String endpoint = 'https://graph.facebook.com/v21.0/' + flowId + '/publish';

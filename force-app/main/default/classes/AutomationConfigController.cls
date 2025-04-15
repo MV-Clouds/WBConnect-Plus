@@ -6,7 +6,7 @@
 * Created By: Kavya Trivedi 
 */
 
-public without sharing class AutomationConfigController {
+public with sharing class AutomationConfigController {
 
     public static String userAccountId = WhatsAppWebhook.getUserAccount();
 

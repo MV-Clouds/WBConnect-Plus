@@ -13,6 +13,7 @@
 global without sharing class WhatsAppWebhook{
     public static String currentTime = System.now().format('yyyy-MM-dd HH:mm:ss');
     public static String phoneNumberId = '';
+    public static String phoneRelatedAccountId = '';
     public static List<Object> messages = new List<Object>();
     public static List<WBConnect_Meta_Configuration__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c FROM WBConnect_Meta_Configuration__c WHERE Is_AWS_Configured__c = true LIMIT 1]; 
     public static WBConnect_Meta_Configuration__c configData = !configList.isEmpty() ? configList[0] : null;
@@ -76,6 +77,9 @@ global without sharing class WhatsAppWebhook{
                         // Extract the phone_number_id
                         phoneNumberId = (String) metadata.get('phone_number_id');
                         System.debug('phonenumberid -- ' + phoneNumberId);
+                        
+                        phoneRelatedAccountId = getPhonenumberIdRelatedAccount(phoneNumberId);
+
                         messages = (List<Object>)value.get('messages');
                         List<Object> senders = new List<Object>();
                         senders = (List<Object>)value.get('contacts');
@@ -154,7 +158,7 @@ global without sharing class WhatsAppWebhook{
                 Map<String, Object> profile = (Map<String,Object>) sender.get('profile');
                 con.Name = (String) profile.get('name');
                 con.Phone__c = (String) senderId;
-                con.Account__c = userAccountId;
+                con.Account__c = phoneRelatedAccountId;
                 insert con;
                 contact = con;
             }
@@ -179,7 +183,7 @@ global without sharing class WhatsAppWebhook{
                 }
 
                 whatsappChat.Phone__c = contact.Phone__c;
-                whatsappChat.Account__c = userAccountId;
+                whatsappChat.Account__c = phoneRelatedAccountId;
                 whatsappChat.Type_of_Message__c = 'Inbound Messages';
                 whatsappChat.Message_Type__c = messageType;
                 whatsappChat.WhatsAppMessageId__c = whatsAppMessageID;
@@ -582,6 +586,17 @@ global without sharing class WhatsAppWebhook{
         } else{
             return null;
         }
+    }
+
+    public static String getPhonenumberIdRelatedAccount(String phId){
+        String accountId = '';
+        List<WBConnect_Meta_Configuration__c> wbConfig = [SELECT Id, Account__c, Phone_Number_Id__c FROM WBConnect_Meta_Configuration__c WHERE Is_WBA_Configured__c = true AND Phone_Number_Id__c = :phId LIMIT 1];
+        if (wbConfig.size() > 0){
+            accountId = wbConfig[0].Account__c;
+        } else {
+            accountId = null;
+        }
+        return accountId;
     }
 
     public class WhatsAppMessage{

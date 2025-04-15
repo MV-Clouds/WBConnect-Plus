@@ -188,7 +188,7 @@
     border-collapse: collapse;
     overflow: hidden;
     margin-top: -5px;
-    border-radius: 0.4rem;
+    /* border-radius: 0.4rem; */
     border: none;
     background-color: transparent;
     /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */

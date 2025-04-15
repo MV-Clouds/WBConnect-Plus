@@ -7,7 +7,7 @@
 *--------------------------------------------------------------------------------
 **/
 
-global without sharing class WhatsAppMessageBatch implements Database.Batchable<SObject>, Database.AllowsCallouts, Database.Stateful {
+global with sharing class WhatsAppMessageBatch implements Database.Batchable<SObject>, Database.AllowsCallouts, Database.Stateful {
     
     global String templateId;
     global List<WBConnect_Chat__c> chatsToProcess;
@@ -113,83 +113,92 @@ global without sharing class WhatsAppMessageBatch implements Database.Batchable<
             Map<String, Object> templateData = new Map<String, Object>();
             List<WBConnect_Template__c> templates = new List<WBConnect_Template__c>();
 
-            // Fetch templates with matching child variables
-            Set<Id> matchingTemplateIds = new Set<Id>();
-            for (WBConnect_Template_Variable__c tv : [SELECT Template__c FROM WBConnect_Template_Variable__c WHERE Object_Name__c = :objectApiName]) {
-                matchingTemplateIds.add(tv.Template__c);
-            }
+            // // Fetch templates with matching child variables
+            // Set<Id> matchingTemplateIds = new Set<Id>();
+            // for (WBConnect_Template_Variable__c tv : [SELECT Template__c FROM WBConnect_Template_Variable__c WHERE Object_Name__c = :objectApiName]) {
+            //     matchingTemplateIds.add(tv.Template__c);
+            // }
 
-            // Fetch template details
-            if (!matchingTemplateIds.isEmpty()) {
-                templates.addAll([
-                    SELECT Id, Template_Name__c, Button_Body__c, Button_Label__c, Button_Type__c, Footer_Body__c, Header_Body__c, Header_Type__c, Language__c, Template_Body__c, Template_Category__c, Template_SubCatagory__c, Template_Type__c, Template_Variable__c,
-                        (SELECT Id, Name, Field_Name__c, Object_Name__c, Type__c, Alternate_Text__c FROM WBConnect_Template_Variables__r) FROM WBConnect_Template__c WHERE Id = :templateId AND Id IN :matchingTemplateIds
-                ]);
-            }
+            // // Fetch template details
+            // if (!matchingTemplateIds.isEmpty()) {
+            //     templates.addAll([
+            //         SELECT Id, Template_Name__c, Button_Body__c, Button_Label__c, Button_Type__c, Footer_Body__c, Header_Body__c, Header_Type__c, Language__c, Template_Body__c, Template_Category__c, Template_SubCatagory__c, Template_Type__c, Template_Variable__c,
+            //             (SELECT Id, Name, Field_Name__c, Object_Name__c, Type__c, Alternate_Text__c FROM WBConnect_Template_Variables__r) FROM WBConnect_Template__c WHERE Id = :templateId AND Id IN :matchingTemplateIds
+            //     ]);
+            // }
 
             // Fetch templates without child variables
+            // List<WBConnect_Template__c> templatesWithoutVariables = [
+            //     SELECT Id, Template_Name__c, Button_Body__c, Button_Label__c, Button_Type__c, Footer_Body__c, Header_Body__c, Header_Type__c, Language__c, Template_Body__c, Template_Category__c, Template_SubCatagory__c, Template_Type__c, Template_Variable__c,
+            //         (SELECT Id, Name, Field_Name__c, Object_Name__c, Type__c, Alternate_Text__c FROM WBConnect_Template_Variables__r) FROM WBConnect_Template__c WHERE Id = :templateId
+            // ];
+            // templates.addAll(templatesWithoutVariables);
             List<WBConnect_Template__c> templatesWithoutVariables = [
-                SELECT Id, Template_Name__c, Button_Body__c, Button_Label__c, Button_Type__c, Footer_Body__c, Header_Body__c, Header_Type__c, Language__c, Template_Body__c, Template_Category__c, Template_SubCatagory__c, Template_Type__c, Template_Variable__c,
-                    (SELECT Id, Name, Field_Name__c, Object_Name__c, Type__c, Alternate_Text__c FROM WBConnect_Template_Variables__r) FROM WBConnect_Template__c WHERE Id = :templateId
+                SELECT Id, Template_Name__c, Button_Body__c, Button_Label__c, Button_Type__c, Footer_Body__c, Header_Body__c, Header_Type__c, Language__c, Template_Body__c, Template_Category__c, Template_SubCatagory__c, Template_Type__c, Template_Variable__c
+                    FROM WBConnect_Template__c WHERE Id = :templateId
             ];
             templates.addAll(templatesWithoutVariables);
 
-            if(templates.size() > 0 && templates[0].Template_Variable__c>0){
-                WBConnect_Template__c template= templates[0];
-                Set<String> fieldSelectionCause = new Set<String>();
-                for (WBConnect_Template_Variable__c tv : template.WBConnect_Template_Variables__r) {
-                    if (tv.Object_Name__c == objectApiName) {
-                        // If the object matches the queried object, add only the field name
-                        fieldSelectionCause.add(tv.Field_Name__c);
-                    } else {
-                        fieldSelectionCause.add(tv.Object_Name__c + '.' + tv.Field_Name__c);
-                    }
-                }
+            // if(templates.size() > 0 && templates[0].Template_Variable__c>0){
+            //     WBConnect_Template__c template= templates[0];
+            //     Set<String> fieldSelectionCause = new Set<String>();
+            //     for (WBConnect_Template_Variable__c tv : template.WBConnect_Template_Variables__r) {
+            //         if (tv.Object_Name__c == objectApiName) {
+            //             // If the object matches the queried object, add only the field name
+            //             fieldSelectionCause.add(tv.Field_Name__c);
+            //         } else {
+            //             fieldSelectionCause.add(tv.Object_Name__c + '.' + tv.Field_Name__c);
+            //         }
+            //     }
                 
-                if(fieldSelectionCause.size() < 1){
-                    templateData.put('template', templates[0]);
-                    return templateData;
-                }
+            //     if(fieldSelectionCause.size() < 1){
+            //         templateData.put('template', templates[0]);
+            //         return templateData;
+            //     }
 
-                String query = 'SELECT ' + String.join(fieldSelectionCause, ', ') + ' FROM ' + objectApiName + ' WHERE Id =:recordId';
-                List<sObject> records = Database.query(String.escapeSingleQuotes(query));
-                List<Object> headerVariables = new List<Object>();
-                List<Object> bodyVariables = new List<Object>();
-                if(records.size() > 0){
-                    sObject record = records[0];
-                    for (WBConnect_Template_Variable__c tv: template.WBConnect_Template_Variables__r) {
-                        Object valueToReplace = '';
-                        if (tv.Object_Name__c == objectApiName) {  
-                            // If the object matches the queried object (Lead, Contact, etc.), get the field directly  
-                            valueToReplace = record.get(tv.Field_Name__c);  
-                        } else {  
-                            // Check if the object supports relationships before querying related fields  
-                            try {  
-                                SObject relatedRecord = record.getSObject(tv.Object_Name__c);  
-                                valueToReplace = (relatedRecord != null) ? relatedRecord.get(tv.Field_Name__c) : null;  
-                            } catch (Exception ex) {  
-                                valueToReplace = null;  
-                            }  
-                        }
-                        if (tv.Type__c == 'Header') {
-                            headerVariables.add(valueToReplace != null ? valueToReplace.toString() : (tv.Alternate_Text__c!= null ? tv.Alternate_Text__c : ' '));
-                            template.Header_Body__c = template.Header_Body__c.replace(tv.Name , valueToReplace != null ? valueToReplace.toString() : (tv.Alternate_Text__c!= null ? tv.Alternate_Text__c : ' ') );
-                        }else if(tv.Type__c == 'Body'){
-                            bodyVariables.add(valueToReplace != null ? valueToReplace.toString() : (tv.Alternate_Text__c!= null ? tv.Alternate_Text__c : ' '));
-                            template.Template_Body__c = template.Template_Body__c.replace(tv.Name , valueToReplace != null ? valueToReplace.toString() : (tv.Alternate_Text__c!= null ? tv.Alternate_Text__c : ' ') );
-                        }
-                    }
-                }
-                templateData.put('template', template);
-                templateData.put('headerParams', headerVariables);
-                templateData.put('bodyParams', bodyVariables);
-                // templateData.put('template', templates[0]);
-                return templateData;
-            } else if (templates.size() > 0 && templates[0].Template_Variable__c < 1){
+            //     String query = 'SELECT ' + String.join(fieldSelectionCause, ', ') + ' FROM ' + objectApiName + ' WHERE Id =:recordId';
+            //     List<sObject> records = Database.query(String.escapeSingleQuotes(query));
+            //     List<Object> headerVariables = new List<Object>();
+            //     List<Object> bodyVariables = new List<Object>();
+            //     if(records.size() > 0){
+            //         sObject record = records[0];
+            //         for (WBConnect_Template_Variable__c tv: template.WBConnect_Template_Variables__r) {
+            //             Object valueToReplace = '';
+            //             if (tv.Object_Name__c == objectApiName) {  
+            //                 // If the object matches the queried object (Lead, Contact, etc.), get the field directly  
+            //                 valueToReplace = record.get(tv.Field_Name__c);  
+            //             } else {  
+            //                 // Check if the object supports relationships before querying related fields  
+            //                 try {  
+            //                     SObject relatedRecord = record.getSObject(tv.Object_Name__c);  
+            //                     valueToReplace = (relatedRecord != null) ? relatedRecord.get(tv.Field_Name__c) : null;  
+            //                 } catch (Exception ex) {  
+            //                     valueToReplace = null;  
+            //                 }  
+            //             }
+            //             if (tv.Type__c == 'Header') {
+            //                 headerVariables.add(valueToReplace != null ? valueToReplace.toString() : (tv.Alternate_Text__c!= null ? tv.Alternate_Text__c : ' '));
+            //                 template.Header_Body__c = template.Header_Body__c.replace(tv.Name , valueToReplace != null ? valueToReplace.toString() : (tv.Alternate_Text__c!= null ? tv.Alternate_Text__c : ' ') );
+            //             }else if(tv.Type__c == 'Body'){
+            //                 bodyVariables.add(valueToReplace != null ? valueToReplace.toString() : (tv.Alternate_Text__c!= null ? tv.Alternate_Text__c : ' '));
+            //                 template.Template_Body__c = template.Template_Body__c.replace(tv.Name , valueToReplace != null ? valueToReplace.toString() : (tv.Alternate_Text__c!= null ? tv.Alternate_Text__c : ' ') );
+            //             }
+            //         }
+            //     }
+            //     templateData.put('template', template);
+            //     templateData.put('headerParams', headerVariables);
+            //     templateData.put('bodyParams', bodyVariables);
+            //     // templateData.put('template', templates[0]);
+            //     return templateData;
+            // } else if (templates.size() > 0 && templates[0].Template_Variable__c < 1){
+            //     templateData.put('template', templates[0]);
+            //     return templateData;
+            // } else {
+            //     return null;
+            // }
+            if(templates.size() > 0){
                 templateData.put('template', templates[0]);
                 return templateData;
-            } else {
-                return null;
             }
         } catch (Exception e) {
             ExceptionHandler.logException(new Map<String, Object>{'className' => 'WhatsAppMessageBatch', 'methodName' => 'getTemplateData', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' =>  e.getMessage(), 'apiResponse' => null});

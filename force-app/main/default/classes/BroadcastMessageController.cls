@@ -8,7 +8,9 @@
 **/
 
 
-public without sharing class BroadcastMessageController {
+public with sharing class BroadcastMessageController {
+
+    public static String userAccountId = WhatsAppWebhook.getUserAccount();
 
     /*
     *********************************************************
@@ -166,6 +168,7 @@ public without sharing class BroadcastMessageController {
     
                 broadcastGroup.Name = name;
                 broadcastGroup.Description__c = description;
+                broadcastGroup.Account__c = userAccountId;
     
                 Database.SaveResult updateResult = Database.update(broadcastGroup, false);
                 if (!updateResult.isSuccess()) {
@@ -175,6 +178,7 @@ public without sharing class BroadcastMessageController {
                 broadcastGroup = new WBConnect_Broadcast_Group__c();
                 broadcastGroup.Name = name;
                 broadcastGroup.Description__c = description;
+                broadcastGroup.Account__c = userAccountId;
     
                 Database.SaveResult insertResult = Database.insert(broadcastGroup, false);
                 if (!insertResult.isSuccess()) {
@@ -202,7 +206,8 @@ public without sharing class BroadcastMessageController {
                 if (String.isNotBlank(phone) && !existingPhoneNumbers.contains(phone)) {
                     newMembersToInsert.add(new WBConnect_Broadcast_Group_Member__c(
                         Broadcast_Group_ID__c = broadcastGroup.Id,
-                        Phone_Number__c = phone
+                        Phone_Number__c = phone,
+                        Account__c = userAccountId
                     ));
                 }
             }
@@ -308,6 +313,7 @@ public without sharing class BroadcastMessageController {
             broadcast.WBConnect_Template__c = templateId;
             broadcast.Status__c = 'Pending';
             broadcast.Broadcast_Group_IDs__c = String.join(groupIds, ','); // Save all group IDs as a comma-separated string
+            broadcast.Account__c = userAccountId;
 
             List<WBConnect_Chat__c> chatRecs = new List<WBConnect_Chat__c>();
 
@@ -332,6 +338,7 @@ public without sharing class BroadcastMessageController {
                             newChat.Message_Status__c = null;
                             newChat.Message_Type__c = 'Template';
                             newChat.WBConnect_Broadcast__c = broadcast.Id;
+                            newChat.Account__c = userAccountId;
                             chatRecs.add(newChat);
                         }
                     }
