@@ -1,4 +1,4 @@
-public without sharing class WBTemplateController {
+public with sharing class WBTemplateController {
 
     public static List<WBConnect_Meta_Configuration__c> wbConfig = [SELECT Id, Access_Token__c, Phone_Number_Id__c, Business_Account_Id__c, Application_Id__c FROM WBConnect_Meta_Configuration__c WHERE Is_WBA_Configured__c = true LIMIT 1]; 
     public static String userAccountId = WhatsAppWebhook.getUserAccount();

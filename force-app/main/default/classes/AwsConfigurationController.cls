@@ -5,7 +5,7 @@
 * Date: 19/03/2025
 * Created By: Kavya Trivedi
 */
-public without sharing class AwsConfigurationController {
+public with sharing class AwsConfigurationController {
 
     public static String userAccountId = WhatsAppWebhook.getUserAccount();
 

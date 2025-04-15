@@ -1,4 +1,4 @@
-public without sharing class WhatsAppConfigurationController {
+public with sharing class WhatsAppConfigurationController {
 
     public static String userAccountId = WhatsAppWebhook.getUserAccount();
     

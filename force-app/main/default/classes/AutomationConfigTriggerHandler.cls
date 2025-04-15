@@ -5,7 +5,7 @@
  * @last modified on  : 04-08-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
  **/
-public without sharing class AutomationConfigTriggerHandler {
+public with sharing class AutomationConfigTriggerHandler {
     private List<WBConnect_Chat__c> recordNewList = new List<WBConnect_Chat__c>();
     private List<WBConnect_Chat__c> recordOldList = new List<WBConnect_Chat__c>();
     private Map<Id, WBConnect_Chat__c> recordNewMap = new Map<Id, WBConnect_Chat__c>();

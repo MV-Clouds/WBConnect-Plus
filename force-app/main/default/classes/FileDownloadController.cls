@@ -1,4 +1,4 @@
-public without sharing class FileDownloadController {
+public with sharing class FileDownloadController {
     public String fileContentType { get; set; }
     public Blob fileDownload { get; set; }
     List<WBConnect_Meta_Configuration__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c FROM WBConnect_Meta_Configuration__c WHERE Is_AWS_Configured__c = true LIMIT 1];

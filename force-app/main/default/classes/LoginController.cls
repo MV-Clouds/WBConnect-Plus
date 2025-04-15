@@ -3,7 +3,7 @@ public without sharing class LoginController {
     @AuraEnabled
     public static string login(String username, String password){
         try {
-            String starturl = '/wbconnectplus/';
+            String starturl = '/';
             ApexPages.PageReference pageRef = Site.login(username, password, starturl);
             if(pageRef != null){
                 return pageRef.getUrl();

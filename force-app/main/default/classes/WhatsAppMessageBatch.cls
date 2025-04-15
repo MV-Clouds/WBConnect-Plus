@@ -7,7 +7,7 @@
 *--------------------------------------------------------------------------------
 **/
 
-global without sharing class WhatsAppMessageBatch implements Database.Batchable<SObject>, Database.AllowsCallouts, Database.Stateful {
+global with sharing class WhatsAppMessageBatch implements Database.Batchable<SObject>, Database.AllowsCallouts, Database.Stateful {
     
     global String templateId;
     global List<WBConnect_Chat__c> chatsToProcess;

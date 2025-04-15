@@ -8,7 +8,7 @@
 **/
 
 
-public without sharing class BroadcastMessageController {
+public with sharing class BroadcastMessageController {
 
     public static String userAccountId = WhatsAppWebhook.getUserAccount();
 

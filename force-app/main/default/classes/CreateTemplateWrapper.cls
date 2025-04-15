@@ -13,7 +13,7 @@
  * Change Description : Store actual variable {{1}} in the name field of template variable.
  ***********************************************************************/
 
-public without sharing class CreateTemplateWrapper {
+public with sharing class CreateTemplateWrapper {
 
     public static List<WBConnect_Meta_Configuration__c> wbConfig = [SELECT Id, Access_Token__c, Phone_Number_Id__c, Business_Account_Id__c, Application_Id__c FROM WBConnect_Meta_Configuration__c WHERE Is_WBA_Configured__c = true LIMIT 1]; 
     public static String userAccountId = WhatsAppWebhook.getUserAccount();

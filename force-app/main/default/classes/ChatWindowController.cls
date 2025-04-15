@@ -13,7 +13,7 @@
 * Date Modified - Developer Name - Description
 * 
 **/
-public without sharing class ChatWindowController {
+public with sharing class ChatWindowController {
 
     public static List<WBConnect_Meta_Configuration__c> wbConfig = [SELECT Id, Access_Token__c, Phone_Number_Id__c FROM WBConnect_Meta_Configuration__c WHERE Is_WBA_Configured__c = true LIMIT 1]; 
     public static String userAccountId = WhatsAppWebhook.getUserAccount();

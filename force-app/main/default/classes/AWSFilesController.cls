@@ -1,4 +1,4 @@
-public without sharing class AWSFilesController {
+public with sharing class AWSFilesController {
 
     public static List<WBConnect_Meta_Configuration__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c FROM WBConnect_Meta_Configuration__c WHERE Is_AWS_Configured__c = true LIMIT 1]; 
     

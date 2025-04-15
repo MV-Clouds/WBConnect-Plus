@@ -6,11 +6,11 @@
                 <h1 class="slds-text-heading_large slds-m-bottom_small loginHeading">Login</h1>
                 <p class="slds-text-body--small slds-m-bottom_large">Login to access your travelwise account</p>
                 <div class="slds-form slds-text-align_left">
-                    <lightning-input type="email" label="Email" name="email" placeholder="your.email@example.com" value={email}
+                    <lightning-input type="text" label="Username" name="email" placeholder="Enter Your Username Here..." value={email}
                         onchange={handleEmailChange} required class="slds-m-bottom_medium" message-when-value-missing="Email is required">
                     </lightning-input>
 
-                    <lightning-input type="password" label="Password" name="password" placeholder="********" value={password}
+                    <lightning-input type="password" label="Password" name="password" placeholder="Enter Your Password Here..." value={password}
                         onchange={handlePasswordChange} required class="slds-m-bottom_small" message-when-value-missing="Password is required">
                     </lightning-input>
 
