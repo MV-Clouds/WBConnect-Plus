@@ -3,11 +3,12 @@ private class AWSFilesControllerTest {
 
     @testSetup
     static void setupTestData() {
-        AWS_Config__c config = new AWS_Config__c(
+        WBConnect_Meta_Configuration__c config = new WBConnect_Meta_Configuration__c(
             AWS_Access_Key__c = 'testAccessKey',
             AWS_Secret_Access_Key__c = 'testSecretKey',
             S3_Bucket_Name__c = 'test-bucket',
-            S3_Region_Name__c = 'us-east-1'
+            S3_Region_Name__c = 'us-east-1',
+            Is_AWS_Configured__c = true
         );
         insert config;
     }
@@ -88,7 +89,7 @@ private class AWSFilesControllerTest {
         String payloadHash = EncodingUtil.convertToHex(Crypto.generateDigest('SHA-256', fileContent));
         String contentType = 'text/plain';
 
-        AWS_Config__c config = [SELECT AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Region_Name__c, S3_Bucket_Name__c FROM AWS_Config__c LIMIT 1];
+        WBConnect_Meta_Configuration__c config = [SELECT AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Region_Name__c, S3_Bucket_Name__c FROM WBConnect_Meta_Configuration__c WHERE Is_AWS_Configured__c = true LIMIT 1];
 
         Test.startTest();
         Map<String, String> headers = AWSFilesController.generateAWSUploadHeaders(
@@ -112,7 +113,7 @@ private class AWSFilesControllerTest {
         String payload = '<Delete><Quiet>true</Quiet><Object><Key>file1.txt</Key></Object></Delete>';
         String contentMD5 = EncodingUtil.base64Encode(Crypto.generateDigest('MD5', Blob.valueOf(payload)));
 
-        AWS_Config__c config = [SELECT AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Region_Name__c, S3_Bucket_Name__c FROM AWS_Config__c LIMIT 1];
+        WBConnect_Meta_Configuration__c config = [SELECT AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Region_Name__c, S3_Bucket_Name__c FROM WBConnect_Meta_Configuration__c WHERE Is_AWS_Configured__c = true LIMIT 1];
 
         Test.startTest();
         Map<String, String> headers = AWSFilesController.generateAWSHeaders(
@@ -143,7 +144,7 @@ private class AWSFilesControllerTest {
     @isTest
     static void testGetS3ConfigSettings() {
         Test.startTest();
-        AWS_Config__c config = AWSFilesController.getS3ConfigSettings();
+        WBConnect_Meta_Configuration__c config = AWSFilesController.getS3ConfigSettings();
         Test.stopTest();
 
         System.assertNotEquals(null, config);

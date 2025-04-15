@@ -3,11 +3,12 @@ private class FileDownloadControllerTest {
 
     @isTest
     static void testFileDownloadSuccess() {
-        AWS_Config__c config = new AWS_Config__c(
+        WBConnect_Meta_Configuration__c config = new WBConnect_Meta_Configuration__c(
             AWS_Access_Key__c = 'testAccessKey',
             AWS_Secret_Access_Key__c = 'testSecretKey',
             S3_Bucket_Name__c = 'test-bucket',
-            S3_Region_Name__c = 'us-east-1'
+            S3_Region_Name__c = 'us-east-1',
+            Is_AWS_Configured__c = true
         );
         insert config;
 
@@ -55,11 +56,12 @@ private class FileDownloadControllerTest {
 
     @isTest
     static void testDownloadFailure() {
-        AWS_Config__c config = new AWS_Config__c(
+        WBConnect_Meta_Configuration__c config = new WBConnect_Meta_Configuration__c(
             AWS_Access_Key__c = 'testAccessKey',
             AWS_Secret_Access_Key__c = 'testSecretKey',
             S3_Bucket_Name__c = 'test-bucket',
-            S3_Region_Name__c = 'us-east-1'
+            S3_Region_Name__c = 'us-east-1',
+            Is_AWS_Configured__c = true
         );
         insert config;
 

@@ -10,6 +10,7 @@ import getRequiredFields from '@salesforce/apex/AutomationConfigController.getRe
 import getObjectFields from '@salesforce/apex/AutomationConfigController.getObjectFields';
 import getFlowIdFromAutomation from '@salesforce/apex/AutomationConfigController.getFlowIdFromAutomation';
 import getFlowFields from '@salesforce/apex/AutomationConfigController.getFlowFields';
+import homePageBGImg from '@salesforce/resourceUrl/homePageBG';
 import { createRecord, updateRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 // import { NavigationMixin } from 'lightning/navigation';
@@ -50,6 +51,8 @@ export default class AutomationPath extends LightningElement {
     //     { label: 'Days', value: 'days' }
     // ];
 
+    @track backgroundStyle = `background-image: url(${homePageBGImg});`;
+    
     typeCompatibilityMap = {
         STRING: ["TextInput", "Text"],
         PICKLIST: ["Dropdown", "CheckboxGroup", "ChipSelector", "RadioButtonsGroup"],

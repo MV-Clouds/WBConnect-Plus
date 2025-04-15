@@ -1,4 +1,4 @@
-public with sharing class FileUploaderController {
+public without sharing class FileUploaderController {
     @AuraEnabled
     public static String uploadFile(String base64Data, String fileName) {
         try {

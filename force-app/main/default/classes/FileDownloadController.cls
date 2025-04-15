@@ -1,6 +1,7 @@
 public without sharing class FileDownloadController {
     public String fileContentType { get; set; }
     public Blob fileDownload { get; set; }
+    List<WBConnect_Meta_Configuration__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c FROM WBConnect_Meta_Configuration__c WHERE Is_AWS_Configured__c = true LIMIT 1];
 
     public FileDownloadController() {
         String fileName = ApexPages.currentPage().getParameters().get('fileName');
@@ -12,9 +13,9 @@ public without sharing class FileDownloadController {
 
         try {
             // AWS Config
-            List<AWS_Config__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c, CreatedDate, LastModifiedDate FROM AWS_Config__c LIMIT 1];
+            List<WBConnect_Meta_Configuration__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c FROM WBConnect_Meta_Configuration__c WHERE Is_AWS_Configured__c = true LIMIT 1];
             if (!configList.isEmpty()) {
-                AWS_Config__c configData = configList[0];
+                WBConnect_Meta_Configuration__c configData = configList[0];
                 String bucketName = configData.S3_Bucket_Name__c;
                 Http http = new Http();
                 HttpRequest request = new HttpRequest();

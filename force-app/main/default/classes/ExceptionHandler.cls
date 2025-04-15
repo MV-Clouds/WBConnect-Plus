@@ -14,7 +14,9 @@
 * 25 Nov, 2024  - Kevin Suvagiya - Added a method to link the chat record with the exception
 * 27 Nov, 2024  - Kevin Suvagiya - Added a method to create exception for the API and salesforce catch blocks
 **/
-public with sharing class ExceptionHandler {
+public without sharing class ExceptionHandler {
+
+    public static String userAccountId = WhatsAppWebhook.getUserAccount();
 
     /*
     *********************************************************
@@ -50,8 +52,9 @@ public with sharing class ExceptionHandler {
             }
             exc.More_Details__c = (String)exceptionData.get('moreDetails');
             exc.Response__c = (String)exceptionData.get('apiResponse');
+            exc.Account__c = userAccountId;
 
-            insert as user exc;
+            insert exc;
         } catch (Exception e) {
             System.debug('Error in logException: ' + e.getMessage());
         }

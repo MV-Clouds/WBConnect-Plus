@@ -1,4 +1,4 @@
-public with sharing class ImportDataController {
+public without sharing class ImportDataController {
 
     public static String userAccountId = WhatsAppWebhook.getUserAccount();
 

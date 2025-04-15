@@ -431,13 +431,13 @@ public without sharing class AutomationConfigTriggerHandler {
                                                     for (Object field : objectFields) {
                                                         String objectField = String.valueOf(field);
                                                         recordToInsert.put(objectField, fieldValue);
-                                                        recordToInsert.put('Account__c', userAccountId);
                                                         System.debug('recordToInsert in for loop: ' + recordToInsert);
                                                     }
                                                 } else {
                                                     String objectField = String.valueOf(mappingValue);
                                                     recordToInsert.put(objectField, fieldValue);
                                                 }
+                                                recordToInsert.put('Account__c', userAccountId);
                                             }
                                         }
                                         

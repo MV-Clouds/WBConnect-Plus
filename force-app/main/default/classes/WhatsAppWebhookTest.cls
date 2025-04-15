@@ -9,29 +9,6 @@
 private class WhatsAppWebhookTest {
 
     @testSetup static void setup() {
-        // Create common test contact
-        Contact testContact = new Contact(
-                LastName = 'Test Contact', 
-                Phone = '+919428234735'
-            );
-        Contact testContact2 = new Contact(
-                LastName = 'Test Contact2', 
-                Phone = '+919501082174'
-            );
-        Contact testContact3 = new Contact(
-                LastName = 'Test Contact3', 
-                Phone = '+919664599641'
-            );
-        Contact testContact4 = new Contact(
-                LastName = 'Test Contact4', 
-                Phone = '+919558680273'
-            );
-        List<Contact> conlist = new List<Contact>();
-        conlist.add(testContact);
-        conlist.add(testContact2);
-        conlist.add(testContact3);
-        insert conlist;      
-        
         WBConnect_Template__c temp = new WBConnect_Template__c(
             Template_Name__c = 'hello_world',
             Status__c = 'In-Review',
@@ -43,6 +20,19 @@ private class WhatsAppWebhookTest {
             WhatsAppMessageId__c = 'wamid.HBgMOTE5NjY0NTk5NjQxFQIAERgSNjMxRUI5Mzg0RTlBRTUwNEM5AA=='
         );
         insert dummyChatReact;
+
+        Account acc = new Account(Name='Test Account');
+        insert acc;
+
+        WBConnect_Meta_Configuration__c config = new WBConnect_Meta_Configuration__c(
+            Access_Token__c = 'TestAccessToken',
+            Phone_Number_Id__c = 'TestPhoneNumberId',
+            Business_Account_Id__c = 'testbusinessid',
+            Application_Id__c = 'testAppId',
+            Account__c = acc.Id,
+            Is_WBA_Configured__c = true
+        );         
+        insert config;
     }
     
     @IsTest
@@ -200,15 +190,6 @@ private class WhatsAppWebhookTest {
         WhatsAppWebhook.handleMediaAttachment(documentId);
         Test.stopTest();
     }
-    
-    // @IsTest
-    // static void testSaveMediaToSalesforce() {
-    //     String documentId = '3827582537491666';
-    //     Contact testcontact = [SELECT Id from Contact LIMIT 1];
-    //     Test.startTest();
-    //     WhatsAppWebhook.saveMediaToSalesforce(Blob.valueOf('mock-binary-data'), 'filename', 'filetype', testcontact.Id, 'Contact');
-    //     Test.stopTest();
-    // }
 
     @isTest
     static void testGetFileExtension() {
@@ -249,5 +230,13 @@ private class WhatsAppWebhookTest {
 
         WBConnect_Template__c updatedTemplate = [SELECT Id, Template_Id__c, Status__c FROM WBConnect_Template__c WHERE Template_Id__c = :testTemp.Template_Id__c LIMIT 1];
         System.assertEquals('Rejected', updatedTemplate.Status__c);
+    }
+
+    @isTest 
+    static void testgetPhonenumberIdRelatedAccount(){
+
+        Test.startTest();
+        String phoneNumberId = WhatsAppWebhook.getPhonenumberIdRelatedAccount('TestPhoneNumberId');
+        Test.stopTest();
     }
 }

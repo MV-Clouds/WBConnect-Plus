@@ -12,7 +12,7 @@ public without sharing class AwsConfigurationController {
     /** 
     * Method Name : getConfiguration 
     * @description : get AWS Configuration
-    * @return AWS_Config__c record
+    * @return WBConnect_Meta_Configuration__c record
     */
     @AuraEnabled
     public static WBConnect_Meta_Configuration__c getConfiguration() {
@@ -54,6 +54,7 @@ public without sharing class AwsConfigurationController {
             config.AWS_Secret_Access_Key__c = secretAccessKey;
             config.S3_Bucket_Name__c = bucketName;
             config.S3_Region_Name__c = regionName;
+            config.Is_AWS_Configured__c = true;
             config.Account__c = userAccountId;
 
             upsert config;

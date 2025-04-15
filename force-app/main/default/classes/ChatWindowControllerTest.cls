@@ -32,23 +32,48 @@ public class ChatWindowControllerTest {
                 Phone__c = '+911234567890'
             );
             insert testChat;
+
+            WBConnect_Meta_Configuration__c config = new WBConnect_Meta_Configuration__c(
+                Access_Token__c = 'TestAccessToken',
+                Phone_Number_Id__c = 'TestPhoneNumberId',
+                Is_WBA_Configured__c = true
+            );         
+            insert config;
         } catch (Exception e) {
             ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'ChatWindowControllerTest', 'methodName' => 'setup', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
         }
     }
 
     @isTest
+    static void testgetContactsForChat() {
+        try {
+            Test.startTest();
+            Map<String, Map<String, Object>> data = ChatWindowController.getContactsForChat();
+            Test.stopTest();
+        } catch (Exception e) {
+            ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'ChatWindowControllerTest', 'methodName' => 'testgetContactsForChat', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
+        }
+    }
+
+    @isTest
+    static void testcreateContact() {
+        try {
+            Test.startTest();
+            String data = ChatWindowController.createContact('ContactName', '+911234567890');
+            Test.stopTest();
+        } catch (Exception e) {
+            ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'ChatWindowControllerTest', 'methodName' => 'testcreateContact', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
+        }
+    }
+
+    @isTest
     static void testGetCombinedData() {
         try {
-            Contact testContact = [SELECT Id FROM Contact LIMIT 1];
+            WBConnect_Contact__c testContact = [SELECT Id FROM WBConnect_Contact__c LIMIT 1];
 
             Test.startTest();
-            Map<String, Object> combinedData = ChatWindowController.getCombinedData(testContact.Id, 'Contact');
+            Map<String, Object> combinedData = ChatWindowController.getCombinedData(testContact.Id, 'WBConnect_Contact__c');
             Test.stopTest();
-
-            list<WBConnect_Chat__c> chats = (list<WBConnect_Chat__c>) combinedData.get('chats');
-            // System.assert( chats.size() > 0, 'Chats should be returned.');
-            // System.assertEquals('Test Message', chats[0].Message__c, 'Chat message should match the test data.');
         } catch (Exception e) {
             ExceptionHandler.logException(new Map<String, Object>{'className' => 'ChatWindowControllerTest', 'methodName' => 'testGetCombinedData', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
         }
@@ -131,20 +156,6 @@ public class ChatWindowControllerTest {
         }
     }
 
-    // @isTest
-    // static void testUpdateThemePreference() {
-    //     try {
-
-    //         Test.startTest();
-    //         Boolean isSuccess = ChatWindowController.updateThemePreference('light');
-    //         Test.stopTest();
-
-    //         System.assertEquals(true, isSuccess, 'Custom setting should be created/updated successfully.');
-    //     } catch (Exception e) {
-    //         ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'ChatWindowControllerTest', 'methodName' => 'testUpdateThemePreference', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
-    //     }
-    // }
-
     @isTest
     static void testSendWhatsappMessage() {
         WBConnect_Contact__c testContact = [SELECT Id, Phone__c FROM WBConnect_Contact__c LIMIT 1];
@@ -191,7 +202,7 @@ public class ChatWindowControllerTest {
         WBConnect_Template_Variable__c testVariable = new WBConnect_Template_Variable__c(
             Name = '{{1}}',
             Field_Name__c = 'FirstName',
-            Object_Name__c = 'Contact',
+            Object_Name__c = 'WBConnect_Contact__c',
             Type__c = 'Body',
             Alternate_Text__c = 'name'
         );
@@ -209,8 +220,8 @@ public class ChatWindowControllerTest {
         insert testVariable2;
 
         Test.startTest();
-        ChatWindowController.getTemplateData(null, testContact.Id, 'Contact');
-        Map<String, Object> result = ChatWindowController.getTemplateData(testTemplate.Id, testContact.Id, 'Contact');
+        ChatWindowController.getTemplateData(null, testContact.Id, 'WBConnect_Contact__c');
+        Map<String, Object> result = ChatWindowController.getTemplateData(testTemplate.Id, testContact.Id, 'WBConnect_Contact__c');
         Test.stopTest();
 
         System.assertNotEquals(null, result.get('template'), 'The result should not be null');
@@ -260,6 +271,18 @@ public class ChatWindowControllerTest {
             System.assertNotEquals(null, newChat, 'New chat should be created.');
         } catch (Exception e) {
             ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'ChatWindowControllerTest', 'methodName' => 'testCreateChatForAWSFiles', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
+        }
+    }
+
+    @isTest
+    static void testDeleteContact() {
+        try {
+            WBConnect_Contact__c testContact = [SELECT Id FROM WBConnect_Contact__c LIMIT 1];
+            Test.startTest();
+            String data = ChatWindowController.deleteContact(testContact.Id);
+            Test.stopTest();
+        } catch (Exception e) {
+            ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'ChatWindowControllerTest', 'methodName' => 'testDeleteContact', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
         }
     }
 

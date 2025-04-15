@@ -37,6 +37,7 @@ public without sharing class WhatsAppConfigurationController {
                 configList[0].Application_Id__c = AppId;
                 configList[0].Business_Account_Id__c = WBAccountId;
                 configList[0].Is_WBA_Configured__c = true;
+                configList[0].Account__c = userAccountId;
                 update configList[0];
             } else {
                 WBConnect_Meta_Configuration__c config = new WBConnect_Meta_Configuration__c();

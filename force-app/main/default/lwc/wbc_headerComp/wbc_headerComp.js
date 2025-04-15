@@ -71,15 +71,21 @@ export default class Wbc_headerComp extends NavigationMixin(LightningElement) {
     // }
 
     handleResetPass(){
-        this[NavigationMixin.Navigate]({
-            type: 'comm__namedPage',
-            attributes: {
-                name: 'Forgot_Password',
-            },
-        });
+        try {
+            console.log('here in forgot');
+            this[NavigationMixin.Navigate]({
+                type: 'comm__namedPage',
+                attributes: {
+                    name: 'Forgot_Password',
+                },
+            });
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     handleLogout(){
+        console.log('her is logout');
         this[NavigationMixin.Navigate]({
             type: 'comm__namedPage',
             attributes: {

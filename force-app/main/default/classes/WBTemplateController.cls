@@ -35,13 +35,12 @@ public without sharing class WBTemplateController {
         String errorMessage=null;
         try {
             HttpRequest httpReq = new HttpRequest();
-            List<WBConnect_Configuration__mdt> config = WBConnect_Configuration__mdt.getAll().values(); 
-            if(config==null && config.isEmpty()){
+            if(wbConfig==null && wbConfig.isEmpty()){
                 errorMessage='Metadata records are missing.';
                 return errorMessage;
             }
-            String accessToken = config[0].Access_Token__c;
-            String endpoint = 'https://graph.facebook.com/v21.0/' + config[0].Phone_Number_Id__c + '/messages';
+            String accessToken = wbConfig[0].Access_Token__c;
+            String endpoint = 'https://graph.facebook.com/v21.0/' + wbConfig[0].Phone_Number_Id__c + '/messages';
             httpReq.setEndpoint(endpoint);
             httpReq.setMethod('POST');
             httpReq.setHeader('Content-Type', 'application/json');
@@ -93,12 +92,12 @@ public without sharing class WBTemplateController {
     ********************************************************
     */
     @AuraEnabled(cacheable=true)
-    public static List<sObject> getRecordsBySObject() {
-        String sObjectName='Contact';
+    public static List<sObject> getRecordsBySObject(String objectName) {
+        String sObjectName=objectName;
         List<sObject> records = new List<sObject>();
         
         try {
-            String query = 'SELECT Id, Name, Phone FROM ' + sObjectName + ' WHERE Phone != null LIMIT 200';           
+            String query = 'SELECT Id, Name, Phone__c FROM ' + sObjectName + ' WHERE Phone__c != null LIMIT 200';           
             records = Database.query(query);
         } catch (Exception e) {
             ExceptionHandler.logException(new Map<String, Object>{'className' => 'WBTemplateController', 'methodName' => 'getRecordsBySObject', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
@@ -663,7 +662,6 @@ public without sharing class WBTemplateController {
     @AuraEnabled
     public static String getPreviewURLofWhatsAppFlow(String flowId) {
         try {
-            List<WBConnect_Configuration__mdt> wbConfig = WBConnect_Configuration__mdt.getAll().values(); 
 
             String accessToken = wbConfig[0].Access_Token__c;
             String endpoint = 'https://graph.facebook.com/v21.0/' + flowId + '?fields=preview.invalidate(false)';

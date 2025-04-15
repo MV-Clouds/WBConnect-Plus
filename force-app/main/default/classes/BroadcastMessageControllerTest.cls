@@ -52,7 +52,7 @@ private class BroadcastMessageControllerTest {
             Header_Type__c = 'text',
             Header_Body__c = 'Header Text',
             Template_Id__c	= 'testId',
-            Button_Body__c = '[{"type":"COPY_CODE","example":"AADDFCGOP"}]'
+            Button_Body__c = '[{"type":"COPY_CODE","example":"AADDFCGOP"},{"type":"PHONE_NUMBER","text":"Call Phone Number","phone_number":"+9132134213"},{"type":"FLOW","text":"View flow","flow_id":"1161263512165232"}]'
         );
 
 
@@ -96,6 +96,15 @@ private class BroadcastMessageControllerTest {
             Status__c = 'Pending'
         );
         insert broadcast;
+
+        WBConnect_Meta_Configuration__c config = new WBConnect_Meta_Configuration__c(
+                Access_Token__c = 'TestAccessToken',
+                Phone_Number_Id__c = 'TestPhoneNumberId',
+                Business_Account_Id__c = 'testbusinessid',
+                Application_Id__c = 'testAppId',
+                Is_WBA_Configured__c = true
+            );         
+            insert config;
         
     }
 
@@ -107,26 +116,6 @@ private class BroadcastMessageControllerTest {
         mockResponse.setBody(body);
         return mockResponse;
     }
-
-    // @isTest
-    // static void testGetObjectConfigs() {
-    //     Test.startTest();
-    //     Map<String, Object> result = BroadcastMessageController.getObjectConfigs();
-    //     Test.stopTest();
-
-    //     // System.assertNotEquals(null, result, 'Result should not be null');
-    //     // System.assert(result.containsKey('objectOptions'), 'Response should have objectOptions');
-    //     // System.assert(result.containsKey('configMap'), 'Response should have configMap');
-    // }
-
-    // @isTest
-    // static void testGetListViewsForObject() {
-    //     Test.startTest();
-    //     List<ListView> listViews = BroadcastMessageController.getListViewsForObject('Account');
-    //     Test.stopTest();
-
-    //     System.assertNotEquals(null, listViews, 'List views should not be null');
-    // }
 
     @isTest
     static void testGetBroadcastGroups() {
@@ -311,6 +300,13 @@ private class BroadcastMessageControllerTest {
 
         System.assertNotEquals(null, groups, 'Returned list should not be null');
         System.assertEquals(0, groups.size(), 'There should be no broadcast groups returned');
+    }
+
+    @isTest
+    static void testgetAllContacts(){
+        Test.startTest();
+        List<WBConnect_Contact__c> contacts = BroadcastMessageController.getAllContacts();
+        Test.stopTest();
     }
 
 }

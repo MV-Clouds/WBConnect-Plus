@@ -65,6 +65,7 @@ public without sharing class WhatsAppFlowController {
                 flow.Flow_JSON__c = flowJson;
                 flow.Category__c = String.join(categories, ';');
                 flow.Template_Type__c = templateType;
+                flow.Account__c = wbConfig[0].Id;
 
                 insert flow;
                 return flowId;
@@ -114,7 +115,6 @@ public without sharing class WhatsAppFlowController {
     @AuraEnabled
     public static String publishWhatsAppFlow(String flowId) {
         try {
-            List<WBConnect_Configuration__mdt> wbConfig = WBConnect_Configuration__mdt.getAll().values(); 
 
             String accessToken = wbConfig[0].Access_Token__c;
             String endpoint = 'https://graph.facebook.com/v21.0/' + flowId + '/publish';

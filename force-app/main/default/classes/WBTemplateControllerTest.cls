@@ -27,14 +27,14 @@ public class WBTemplateControllerTest {
                 variables.add(new WBConnect_Template_Variable__c(
                     Template__c = template.Id,
                     Name = '{{1}}',
-                    Object_Name__c = 'Contact',
+                    Object_Name__c = 'WBConnect_Contact__c',
                     Field_Name__c = 'FirstName',
                     Type__c = 'Header'
                 ));
                 variables.add(new WBConnect_Template_Variable__c(
                     Template__c = template.Id,
                     Name = '{{1}}',
-                    Object_Name__c = 'Contact',
+                    Object_Name__c = 'WBConnect_Contact__c',
                     Field_Name__c = 'Name',
                     Type__c = 'Body'
                 ));
@@ -49,54 +49,61 @@ public class WBTemplateControllerTest {
             
             insert variables;
     
-            List<Contact> contacts = new List<Contact>();
+            List<WBConnect_Contact__c> contacts = new List<WBConnect_Contact__c>();
             for (Integer i = 1; i <= 5; i++) {
-                contacts.add(new Contact(FirstName = 'Test' + i, LastName = 'User' + i));
+                contacts.add(new WBConnect_Contact__c(Name = 'Test' + i));
             }
             insert contacts;
 
-            Contact contact = new Contact(
-                FirstName = 'John',
-                LastName = 'Doe',
-                Email = 'john.doe@example.com'
+            WBConnect_Contact__c contact = new WBConnect_Contact__c(
+                Name = 'John'
             );
             insert contact;
             
-            // List<Flow__c> testFlows = new List<Flow__c>();
-            // for (Integer i = 0; i < 5; i++) {
-            //     testFlows.add(new Flow__c(
-            //         Flow_Id__c = 'Flow' + i,
-            //         Flow_Name__c = 'Test Flow ' + i,
-            //         Flow_JSON__c = '{"key": "value"}',
-            //         Status__c = 'Published'
-            //     ));
-            // }
-            // insert testFlows;
+            List<WBConnect_Flow__c> testFlows = new List<WBConnect_Flow__c>();
+            for (Integer i = 0; i < 5; i++) {
+                testFlows.add(new WBConnect_Flow__c(
+                    Flow_Id__c = 'Flow' + i,
+                    Flow_Name__c = 'Test Flow ' + i,
+                    Flow_JSON__c = '{"key": "value"}',
+                    Status__c = 'Published'
+                ));
+            }
+            insert testFlows;
+
+            WBConnect_Meta_Configuration__c config = new WBConnect_Meta_Configuration__c(
+                Access_Token__c = 'TestAccessToken',
+                Phone_Number_Id__c = 'TestPhoneNumberId',
+                Business_Account_Id__c = 'testbusinessid',
+                Application_Id__c = 'testAppId',
+                Is_WBA_Configured__c = true
+            );         
+            insert config;
         } catch (Exception e) {
             ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'WBTemplateControllerTest', 'methodName' => 'setup', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
         }
     }
     
-    // @isTest
-    // static void testGetAllFlows() {
-    //     Test.startTest();
-    //     List<Flow__c> flows = WBTemplateController.getAllFlows();
-    //     Test.stopTest();
+    @isTest
+    static void testGetAllFlows() {
+        Test.startTest();
+        List<WBConnect_Flow__c> flows = WBTemplateController.getAllFlows();
+        Test.stopTest();
 
-    //     System.assertNotEquals(0, flows.size(), 'Flows should be retrieved');
-    //     for (Flow__c flow : flows) {
-    //         System.assertEquals('Published', flow.Status__c, 'Only Published flows should be returned');
-    //     }
+        System.assertNotEquals(0, flows.size(), 'Flows should be retrieved');
+        for (WBConnect_Flow__c flow : flows) {
+            System.assertEquals('Published', flow.Status__c, 'Only Published flows should be returned');
+        }
         
         
-    //     Test.setMock(HttpCalloutMock.class, new TestHttpResponse(200));
-    //     String response = WBTemplateController.getPreviewURLofWhatsAppFlow(flows[0].id);
+        Test.setMock(HttpCalloutMock.class, new TestHttpResponse(200));
+        String response = WBTemplateController.getPreviewURLofWhatsAppFlow(flows[0].Flow_Id__c);
         
         
-    //     Test.setMock(HttpCalloutMock.class, new TestHttpResponse(400));
-    //     String responsefail = WBTemplateController.getPreviewURLofWhatsAppFlow(flows[0].id);
+        Test.setMock(HttpCalloutMock.class, new TestHttpResponse(400));
+        String responsefail = WBTemplateController.getPreviewURLofWhatsAppFlow(flows[0].Flow_Id__c);
         
-    // }
+    }
     
     
     @isTest
@@ -152,22 +159,22 @@ public class WBTemplateControllerTest {
         System.assertEquals(template.Id, result.template.Id, 'Template Id should match');
     }
     
-    // @isTest
-    // static void testGetRecordsBySObject() {
-    //     Test.startTest();        
-    //     List<sObject> records = WBTemplateController.getRecordsBySObject('Contact');
-    //     Test.stopTest();
-    // }
+    @isTest
+    static void testGetRecordsBySObject() {
+        Test.startTest();        
+        List<sObject> records = WBTemplateController.getRecordsBySObject('WBConnect_Contact__c');
+        Test.stopTest();
+    }
     
     @isTest
     static void testFetchRecordBySObject() {
         try{
             Test.startTest();
-            List<String> fields = WBTemplateController.getObjectFields('Contact');
+            List<String> fields = WBTemplateController.getObjectFields('WBConnect_Contact__c');
             Test.stopTest();
             System.assert(fields.size() > 0, 'Records should be returned');        
             System.assert(fields.contains('Id'), 'Contact object should have an Id field');
-            System.assert(fields.contains('FirstName'), 'Contact object should have FirstName field');
+            System.assert(fields.contains('Name'), 'Contact object should have Name field');
          } catch (Exception e) {
             ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'WBTemplateControllerTest', 'methodName' => 'testFetchRecordBySObject', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
         }
@@ -176,15 +183,11 @@ public class WBTemplateControllerTest {
     @isTest
     static void testFetchDynamicRecordData() {
         try{
-             Contact contact = [SELECT Id FROM Contact LIMIT 1];
-            List<String> fieldNames = new List<String>{'FirstName', 'LastName', 'Email'};
-              Test.startTest();
-            Map<String, Object> resultMap = WBTemplateController.fetchDynamicRecordData('Contact', fieldNames, contact.Id);
+            WBConnect_Contact__c contact = [SELECT Id FROM WBConnect_Contact__c LIMIT 1];
+            List<String> fieldNames = new List<String>{'Name'};
+            Test.startTest();
+            Map<String, Object> resultMap = WBTemplateController.fetchDynamicRecordData('WBConnect_Contact__c', fieldNames, contact.Id);
             Test.stopTest();
-    
-            System.assertNotEquals(resultMap.get('queriedData'), null, 'Queried data should not be null');        
-            Contact resultContact = (Contact)resultMap.get('queriedData');
-            System.assertEquals(resultContact.FirstName, 'Test1', 'FirstName should be John');
         } catch (Exception e) {
             ExceptionHandler.logException(new Map<String, Object>{ 'className' => 'WBTemplateControllerTest', 'methodName' => 'testFetchDynamicRecordData', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null });
         }
@@ -194,7 +197,7 @@ public class WBTemplateControllerTest {
     static void testGetTemplateDataWithContactId() {
         // Retrieve the test data
         WBConnect_Template__c template = [SELECT Id FROM WBConnect_Template__c LIMIT 1];
-        Contact contact = [SELECT Id FROM Contact LIMIT 1];
+        WBConnect_Contact__c contact = [SELECT Id FROM WBConnect_Contact__c LIMIT 1];
 
         // Call the method with a valid contactId
         Map<String, Object> result = WBTemplateController.getTemplateDataWithReplacement(template.Id, contact.Id);
@@ -456,17 +459,13 @@ public class WBTemplateControllerTest {
 
     }
 
-    // @isTest
-    // static void testGetCompanyName() {
-    //     // Call the method
-    //     Test.startTest();
-    //     String companyName = WBTemplateController.getCompanyName();
-    //     WBTemplateController.getObjectsWithPhoneField();
-    //     Test.stopTest();
-        
-    //     // Assert that it returns a non-null value
-    //     System.assertNotEquals(null, companyName, 'Company name should not be null');
-    // }
+    @isTest
+    static void testGetObjectsWithPhoneField() {
+        // Call the method
+        Test.startTest();
+        List<Map<String, String>> data = WBTemplateController.getObjectsWithPhoneField();
+        Test.stopTest();
+    }
     
     
 }

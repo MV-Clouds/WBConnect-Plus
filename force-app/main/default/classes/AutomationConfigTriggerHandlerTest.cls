@@ -1,5 +1,5 @@
 @isTest
-public with sharing class AutomationConfigTriggerHandlerTest {
+public without sharing class AutomationConfigTriggerHandlerTest {
     @isTest
     static void testFilterAndProcessValidChats() {
         // Create WBConnect_Template__c with Button JSON
@@ -93,9 +93,9 @@ public with sharing class AutomationConfigTriggerHandlerTest {
         WBConnect_Automation_Path__c path2 = new WBConnect_Automation_Path__c(
             Name='Test Path',
             Automation__c=automation.Id,
-            Button_Value__c='yes',
             Action_Type__c='Create a Record',
-            Action_Email_Template__c=template.Id
+            Object_Name__c='Contact',
+            Field_Mapping__c='{"LastName":"step"}'
         );
         insert path2;
 
@@ -112,18 +112,19 @@ public with sharing class AutomationConfigTriggerHandlerTest {
         // Create reply WBConnect_Chat__c
         WBConnect_Chat__c replyChat = new WBConnect_Chat__c(
             Phone__c='9999999999',
-            Message__c='Yes',
+            Message__c='',
             Message_Type__c='interactive',
-            WhatsAppContextMessageID__c='abc123'
+            WhatsAppContextMessageID__c='abc123',
+            Reply_To__c=originalChat.Id
         );
         insert replyChat;
 
-        String normalizedMessageBody = '';
-        if(replyChat.Message_Type__c == 'interactive'){
-            normalizedMessageBody = 'interactive';
-        } else{
-            normalizedMessageBody = replyChat.Message__c.toLowerCase().trim();
-        }
+        // String normalizedMessageBody = '';
+        // if(replyChat.Message_Type__c == 'interactive'){
+        //     normalizedMessageBody = 'interactive';
+        // } else{
+        //     normalizedMessageBody = replyChat.Message__c.toLowerCase().trim();
+        // }
 
         WBConnect_Chat__c parentChat = new WBConnect_Chat__c(
             Type_of_Message__c = 'Outbound Messages',
@@ -165,6 +166,79 @@ public with sharing class AutomationConfigTriggerHandlerTest {
         };
 
         // Call the method to test
+        Test.startTest();
+        // Prepare data for handler
+        List<WBConnect_Chat__c> newList = [SELECT Id, Message__c, Type_of_Message__c, Reply_to__c, WhatsAppContextMessageID__c, Message_Type__c, Flow_Response_JSON__c FROM WBConnect_Chat__c WHERE Id = :childChat.Id];
+        List<WBConnect_Chat__c> oldList = new List<WBConnect_Chat__c>();
+        Map<Id, WBConnect_Chat__c> newMap = new Map<Id, WBConnect_Chat__c>(newList);
+        Map<Id, WBConnect_Chat__c> oldMap = new Map<Id, WBConnect_Chat__c>();
+
+        AutomationConfigTriggerHandler handler = new AutomationConfigTriggerHandler(
+            newList,
+            oldList,
+            newMap,
+            oldMap,
+            true,  // isInsert
+            false, // isUpdate
+            false, // isDelete
+            false  // isUndelete
+        );
+        handler.filterAndProcessValidChats();
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testFilterAndProcessValidChatsV2() {
+        // Create WBConnect_Template__c with Button JSON
+        WBConnect_Template__c template = new WBConnect_Template__c(
+            Template_Id__c = 'test',
+            Button_Body__c = '[{"type":"QUICK_REPLY","text":"Yes"},{"type":"QUICK_REPLY","text":"No"}]'
+        );
+        insert template;
+
+        // Create original parent chat message (outbound)
+        WBConnect_Chat__c parentChat = new WBConnect_Chat__c(
+            Type_of_Message__c = 'Outbound Messages',
+            WBConnect_Template__c = template.Id,
+            WhatsAppMessageId__c = 'msg12345'
+        );
+        insert parentChat;
+
+        // Create matching automation
+        WBConnect_Automation__c automation = new WBConnect_Automation__c(
+            Name = 'Test Automation',
+            Template__c = template.Id
+        );
+        insert automation;
+
+        WBConnect_Automation_Path__c path2 = new WBConnect_Automation_Path__c(
+            Name='Test Path',
+            Automation__c=automation.Id,
+            Action_Type__c='Create a Record',
+            Object_Name__c='Contact',
+            Field_Mapping__c='{"LastName":"step"}'
+        );
+        insert path2;
+
+        // Create valid inbound reply chat
+        WBConnect_Chat__c childChat = new WBConnect_Chat__c(
+            Type_of_Message__c = 'Inbound Messages',
+            Reply_to__c = parentChat.Id,
+            Message__c = 'abc',
+            WhatsAppContextMessageID__c = 'msg12345',
+            Message_Type__c = 'interactive',
+            Flow_Response_JSON__c = '{"step":"1"}'
+        );
+        insert childChat;
+
+        // Mock configuration
+        WBConnect_Meta_Configuration__c config = new WBConnect_Meta_Configuration__c(
+            Access_Token__c = 'abc123',
+            Phone_Number_Id__c = 'phone001',
+            Is_WBA_Configured__c = true
+        );
+        insert config;
+
         Test.startTest();
         // Prepare data for handler
         List<WBConnect_Chat__c> newList = [SELECT Id, Message__c, Type_of_Message__c, Reply_to__c, WhatsAppContextMessageID__c, Message_Type__c, Flow_Response_JSON__c FROM WBConnect_Chat__c WHERE Id = :childChat.Id];

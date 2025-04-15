@@ -1,11 +1,11 @@
 public without sharing class AWSFilesController {
 
-    public static List<AWS_Config__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c, CreatedDate, LastModifiedDate FROM AWS_Config__c  LIMIT 1];
+    public static List<WBConnect_Meta_Configuration__c> configList = [SELECT Id, AWS_Access_Key__c, AWS_Secret_Access_Key__c, S3_Bucket_Name__c, S3_Region_Name__c FROM WBConnect_Meta_Configuration__c WHERE Is_AWS_Configured__c = true LIMIT 1]; 
     
     public static String uploadFileToS3(String fileName, Blob fileBody, String contentType) {
         String publicURL = '';
         try {
-            AWS_Config__c configData = !configList.isEmpty() ? configList[0] : null;
+            WBConnect_Meta_Configuration__c configData = !configList.isEmpty() ? configList[0] : null;
             
             if(configData != null) {
                 String endpoint = 'https://' + configData.S3_Bucket_Name__c + '.s3.amazonaws.com/' + fileName;
@@ -96,14 +96,14 @@ public without sharing class AWSFilesController {
             return headers;
         } catch (Exception e) {
             System.debug('Error: ' + e.getMessage());
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'generateAWSUploadHeaders', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'generateAWSUploadHeaders', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             return null;
         }
     }
 
     public static void deleteImagesFromS3(List<String> fileNames) {
         try {
-            AWS_Config__c configData = !configList.isEmpty() ? configList[0] : null;
+            WBConnect_Meta_Configuration__c configData = !configList.isEmpty() ? configList[0] : null;
 
             if(configData != null){
                 String endpoint = 'https://' + configData.S3_Bucket_Name__c + '.s3.amazonaws.com/';
@@ -143,7 +143,7 @@ public without sharing class AWSFilesController {
             }
         } catch (Exception e) {
             System.debug('Error: ' + e.getMessage());
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'deleteImagesFromS3', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'deleteImagesFromS3', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
         }
     }
     
@@ -193,7 +193,7 @@ public without sharing class AWSFilesController {
             return headers;
         } catch (Exception e) {
             System.debug('Error: ' + e.getMessage());
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'generateAWSHeaders', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'generateAWSHeaders', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             return null;
         }
     }
@@ -207,18 +207,18 @@ public without sharing class AWSFilesController {
             return kSigning;
         } catch (Exception e) {
             System.debug('Error: ' + e.getMessage());
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'getSignatureKey', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'getSignatureKey', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             return null;
         }
     }
 
     @AuraEnabled
-    public static AWS_Config__c getS3ConfigSettings(){
+    public static WBConnect_Meta_Configuration__c getS3ConfigSettings(){
         try {
-            AWS_Config__c configData = !configList.isEmpty() ? configList[0] : null;
+            WBConnect_Meta_Configuration__c configData = !configList.isEmpty() ? configList[0] : null;
             return configData;
         } catch (Exception e) {
-            // ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'getS3ConfigSettings', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
+            ExceptionHandler.logException(new Map<String, Object>{'className' => 'AWSFilesController', 'methodName' => 'getS3ConfigSettings', 'exceptionObj' => e, 'isApiException' => false, 'statusCode' => null, 'chatId' => null, 'moreDetails' => e.getMessage(), 'apiResponse' => null});
             return null;
         }
     }
