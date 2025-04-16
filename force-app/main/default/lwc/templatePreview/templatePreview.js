@@ -35,7 +35,7 @@ export default class TemplatePreview extends LightningElement {
                 this.template.host.style.setProperty('--max-height-of-the-preview-div', 'fit-content');
             }
         }catch(e){
-            console.log('Error in connectedCallback:::', e.message);
+            console.error('Error in connectedCallback:::', e.message);
         }
     }
 
@@ -47,7 +47,7 @@ export default class TemplatePreview extends LightningElement {
                 this.isUpdateBody = false;
             }
         } catch (e) {
-            console.log('Error in function renderedCallback:::', e.message);
+            console.error('Error in function renderedCallback:::', e.message);
         }
     }
 
@@ -73,11 +73,11 @@ export default class TemplatePreview extends LightningElement {
                 this.headerBody = doc.documentElement.textContent;
                 
                 this.templateBody = this.templateData?.Template_Body__c;
-                console.log(this.templateBody);
+                
                 if (this.templateData?.Template_Category__c === 'Authentication') {
                     this.templateBody = '{{code}} ' + this.templateBody;
                 }
-                console.log(this.templateBody);
+                
                 this.footerBody = this.templateData?.Footer_Body__c;
 
                 if(this.templateData.Header_Type__c=='Image'){
@@ -120,11 +120,11 @@ export default class TemplatePreview extends LightningElement {
             })
             .catch(e => {
                 this.showSpinner = false;
-                console.log('Error in fetchInitialData > getTemplateData ::: ', e.message);
+                console.error('Error in fetchInitialData > getTemplateData ::: ', e.message);
             })
         } catch (e) {
             this.showSpinner = false;
-            console.log('Error in function fetchInitialData:::', e.message);
+            console.erorr('Error in function fetchInitialData:::', e.message);
         }
     }
 
@@ -149,7 +149,7 @@ export default class TemplatePreview extends LightningElement {
         try {
             this.dispatchEvent(new CustomEvent('back'));
         } catch (e) {
-            console.log('Error in function handleBack:::', e.message);
+            console.error('Error in function handleBack:::', e.message);
         }
     }
 

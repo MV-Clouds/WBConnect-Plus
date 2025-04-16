@@ -36,7 +36,6 @@ export default class FlowPreviewModel extends LightningElement {
     }
 
     get flowDataAvailable(){
-        console.log(this.flow);
         return this.flows.length > 0;
     }
 

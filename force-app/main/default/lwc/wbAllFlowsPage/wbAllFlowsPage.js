@@ -161,7 +161,6 @@ export default class WbAllFlowsPage extends LightningElement {
             this.showPopup = true;
 
             let matchingRecord = this.filteredRecords.find(record => record.Flow_Id__c === flowId);
-            console.log({matchingRecord});
             if (matchingRecord && matchingRecord.Status__c === 'Draft') {
                 this.isFlowDraft = true;
             }

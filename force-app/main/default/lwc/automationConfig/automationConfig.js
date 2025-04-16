@@ -51,7 +51,6 @@ export default class AutomationConfig extends LightningElement {
                     template: record.Template__r ? record.Template__r.Template_Name__c : '',
                     templateType: record.Template__r ? record.Template__r.Template_Type__c : ''
                 }));
-                console.log('this.automationData =', JSON.stringify(this.originalAutomationData));
                 this.automationData = [...this.originalAutomationData];
             })
             .catch(error => {
@@ -118,10 +117,6 @@ export default class AutomationConfig extends LightningElement {
             Template__c: this.selectedTemplateId
         };
 
-        console.log('Automation Record:', JSON.stringify(automationRecord));
-
-        // const apexMethod = this.isEditMode ? updateAutomations : saveAutomations;
-
         saveAutomations({ automations: [automationRecord] })
         .then((result) => {
             this.showToast('Success', `Automation saved successfully.`, 'success');
@@ -139,13 +134,10 @@ export default class AutomationConfig extends LightningElement {
                     template: record.Template__r ? record.Template__r.Template_Name__c : '',
                     templateType: record.Template__r ? record.Template__r.Template_Type__c : ''
                 }));
-                // console.log('this.automationData =', JSON.stringify(this.originalAutomationData));
                 this.automationData = [...this.originalAutomationData];
 
-                console.log('this.automationData in handleSave =', JSON.stringify(this.automationData));
 
                 const savedAutomation = this.automationData.find(auto => auto.id === savedRecordId);
-                console.log('savedRecordId:', savedRecordId, 'savedAutomation:', JSON.stringify(savedAutomation));
 
                 if (savedAutomation) {
                     // let cmpDef = {
@@ -155,7 +147,6 @@ export default class AutomationConfig extends LightningElement {
                     //         templateType: savedAutomation.templateType
                     //     }
                     // };
-                    console.log('Record ID:', savedAutomation.id, 'Template Type:', savedAutomation.templateType);
 
                     // let encodedDef = btoa(JSON.stringify(cmpDef));
                     try {
@@ -170,7 +161,6 @@ export default class AutomationConfig extends LightningElement {
                     } catch (error) {
                         console.error('Error dispatching event:', error);
                     }
-                    console.log('this.dispatchEvent', this.dispatchEvent);
                 } else {
                     console.warn('Saved automation not found in automationData.');
                 }
@@ -201,14 +191,12 @@ export default class AutomationConfig extends LightningElement {
     * Created By: Kavya Trivedi
     */
     handleSearch(event) {
-        console.log('Search term:', event.target.value);
         const searchTerm = event.target.value.toLowerCase().trim();
         this.automationData = this.originalAutomationData.filter(auto =>
             (auto.name || '').toLowerCase().includes(searchTerm) ||
             (auto.description || '').toLowerCase().includes(searchTerm) ||
             (auto.template || '').toLowerCase().includes(searchTerm)
         );
-        console.log('Filtered Data:', this.automationData);
     }
 
     handleNew() {
@@ -255,7 +243,6 @@ export default class AutomationConfig extends LightningElement {
         //         templateType: templateType
         //     }
         // };
-        console.log('Record ID:', recordId, 'Template Type:', templateType);
         // let encodedDef = btoa(JSON.stringify(cmpDef));
         try {
             const event1 = new CustomEvent('navigate', {
@@ -269,7 +256,6 @@ export default class AutomationConfig extends LightningElement {
         } catch (error) {
             console.error('Error dispatching event:', error);
         }
-        console.log('this.dispatchEvent', this.dispatchEvent);
     }
 
     /**

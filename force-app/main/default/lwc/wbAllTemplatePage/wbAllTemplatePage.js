@@ -159,8 +159,6 @@ export default class WbAllTemplatePage extends LightningElement {
                 if (data) {
                     this.allRecords = data.map((record, index) => {
                         const isButtonDisabled = record.Status__c === 'In-Review';
-                        console.log('Record ::: ',record);
-                        
                         return {
                             ...record,
                             id: record.Id,
@@ -171,9 +169,6 @@ export default class WbAllTemplatePage extends LightningElement {
                         };
                     });                    
                     this.filteredRecords = [...this.allRecords];
-                    console.log('All Records:', this.allRecords);
-                    console.log('Filtered Records:', this.filteredRecords);
-                                        
                     this.isLoading=false;
                 } else if (error) {
                     console.error('Error fetching WhatsApp templates: ', error);
@@ -319,10 +314,6 @@ export default class WbAllTemplatePage extends LightningElement {
     }
 
     previewTemplate(event) {
-        console.log('Preview Template event:', event);
-        console.log('Preview Template event id :', event.currentTarget.dataset.id);
-        
-        
         this.selectedTemplateId =  event.currentTarget.dataset.id;
         this.showPopup = true;
     }

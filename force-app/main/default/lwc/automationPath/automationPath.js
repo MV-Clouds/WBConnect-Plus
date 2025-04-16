@@ -70,15 +70,10 @@ export default class AutomationPath extends LightningElement {
 
 
     connectedCallback() {
-        console.log('Automation Path Loaded with Record ID:', this.recordId);
-        console.log('Automation Path Loaded with Template Type:', this.templateType);
-
         if (!this.recordId) return;
 
         this.isFlowTemplate = this.templateType === 'Flow';
         this.selectedAction = this.isFlowTemplate ? 'create' : 'whatsapp';
-
-        console.log('isFlowTemplate:', this.isFlowTemplate);
 
         this.isFlowTemplate
             ? (this.loadObjects(), this.loadRequiredFields(), this.setFlowId())
@@ -100,21 +95,17 @@ export default class AutomationPath extends LightningElement {
             })
             .catch(error => console.error('Error fetching objects:', error));
 
-        // console.log('this.allObjects =', JSON.stringify(this.allObjects));
     }
 
     loadRequiredFields(savedFieldValues = {}) {
-        console.log('LOADING REQUIRED FIELDS');
         try {
             this.isLoading = true;
             if (!this.selectedObject) {
-                console.log('No object selected');
                 return;
             }
             getRequiredFields({ objectName: this.selectedObject })
                 .then(data => {
                     const excludedFields = ['OwnerId', 'IsConverted', 'IsUnreadByOwner', 'CreatedDate', 'CreatedById', 'LastModifiedDate', 'LastModifiedById', 'SystemModstamp', 'LastViewedDate', 'LastReferencedDate'];
-                    console.log('requiredFields data:', JSON.stringify(data));
                     this.requiredFields = data[0]?.requiredFields
                         .filter(field => !excludedFields.includes(field.name))
                         .map(field => ({
@@ -142,7 +133,6 @@ export default class AutomationPath extends LightningElement {
                             isReference: field.type === 'REFERENCE',
                             isTextArea: field.type === 'TEXTAREA'
                         }));
-                    // console.log('this.requiredFields:', JSON.stringify(this.requiredFields));
 
                     this.chatWindowRows1 = this.requiredFields.map((field, index) => ({
                         id: `${field.apiName}-${index}`,
@@ -154,7 +144,6 @@ export default class AutomationPath extends LightningElement {
                         isRequired: true
                     }));
 
-                    console.log('this.chatWindowRows1:', JSON.stringify(this.chatWindowRows1));
                     // const combinedMap = new Map(
                     //     this.chatWindowRows2.map(row => [row.selectedObjectField, row])
                     // );
@@ -204,10 +193,7 @@ export default class AutomationPath extends LightningElement {
                             };
                         });
                     }
-                    console.log('finalRows:', JSON.stringify(finalRows));
                     this.chatWindowRows = finalRows;
-                    console.log('CHAT WINDOW ROWS:', JSON.stringify(this.chatWindowRows));
-                    // console.log('this.chatWindowRows1:', JSON.stringify(this.chatWindowRows1));
 
                     // this.fetchAutomationPaths();
                 })
@@ -226,7 +212,6 @@ export default class AutomationPath extends LightningElement {
         getFlowIdFromAutomation({ automationId: this.recordId })
             .then((data) => {
                 this.FlowId = data;
-                console.log('Flow Id:', this.FlowId);
                 this.loadFlowFields();
             })
             .catch((error) => {
@@ -235,11 +220,9 @@ export default class AutomationPath extends LightningElement {
     }
 
     loadFlowFields() {
-        console.log('Loading Flow Fields for Flow ID:', this.FlowId);
         getFlowFields({ flowId: this.FlowId })
             .then((jsonData) => {
                 jsonData = JSON.parse(jsonData);
-                console.log('Flow JSON Data:', JSON.stringify(jsonData));
                 const data = this.extractFlowFieldTypes(jsonData.screens);
                 const keys = Object.keys(data);
                 this.flowFields = keys.map(key => ({
@@ -247,7 +230,6 @@ export default class AutomationPath extends LightningElement {
                     value: key,
                     type: data[key]
                 }));
-                console.log('Formatted combobox options:', JSON.stringify(this.flowFields));
             })
             .catch((error) => {
                 console.error('Error fetching flow JSON:', error);
@@ -258,7 +240,6 @@ export default class AutomationPath extends LightningElement {
     //     const flowFieldTypes = {};
 
     //     screens.forEach(screen => {
-    //         console.log('Screen:', JSON.stringify(screen));
     //         const children = screen.layout?.children || [];
     //         children.forEach(child => {
     //             if (child.type === 'Form') {
@@ -325,7 +306,6 @@ export default class AutomationPath extends LightningElement {
         getTemplates()
             .then((result) => {
                 if (result) {
-                    // console.log("Templates Result:", JSON.stringify(result));
                     this.allWhatsAppTemplates = result.map(template => ({
                         Id: template.Id,
                         Name: template.Template_Name__c
@@ -361,11 +341,9 @@ export default class AutomationPath extends LightningElement {
                         templateType: result.Template__r?.Template_Type__c || ''
                     };
 
-                    console.log('this.automation =', JSON.stringify(this.automation));
                     if (result.Template__r?.Button_Body__c) {
                         try {
                             const buttons = JSON.parse(result.Template__r.Button_Body__c);
-                            // console.log('BUTTONS =', buttons);
                             this.quickReplyButtons = buttons
                                 .filter(button => button.type === "QUICK_REPLY")
                                 .map(button => ({
@@ -381,7 +359,6 @@ export default class AutomationPath extends LightningElement {
                             console.error("Error parsing Button_Body__c:", error);
                         }
                     }
-                    console.log('this.quickreplybuttons:', JSON.stringify(this.quickReplyButtons));
                 }
             })
             .catch(error => {
@@ -396,11 +373,9 @@ export default class AutomationPath extends LightningElement {
 
         getAutomationPathsByAutomationId({ automationId: this.recordId })
             .then((result) => {
-                console.log('Fetched Automation Paths:', JSON.stringify(result));
 
                 if (!this.isFlowTemplate) {
 
-                    console.log('this.isFlowTemplate:', this.isFlowTemplate);
                     // Convert the fetched records into a structured object
                     const automationPathsMap = {};
                     result.forEach(path => {
@@ -429,22 +404,17 @@ export default class AutomationPath extends LightningElement {
 
                         this.isEdit = true;
 
-                        console.log('Flow Path:', JSON.stringify(existingFlowPath));
                         this.FlowRecordId = existingFlowPath.Id || '';
                         this.selectedObject = existingFlowPath.Object_Name__c || '';
-                        console.log('this.selectedObject :', this.selectedObject);
 
                         this.loadFlowFields();
-                        console.log('After JSON DATA');
 
                         // this.fetchFieldsForObject(this.selectedObject);
                         getObjectFields({ objectName: this.selectedObject })
                             .then((result) => {
-                                console.log('fetchFieldsForObjects after apex:- ', JSON.stringify(result))
                                 this.objectFields = result;
                                 
                                 const fieldMapping = JSON.parse(existingFlowPath.Field_Mapping__c || '{}');
-                                console.log('fieldMapping :', JSON.stringify(fieldMapping));
 
                                 this.chatWindowRows2 = [];
 
@@ -469,7 +439,6 @@ export default class AutomationPath extends LightningElement {
                             .catch((error) => {
                                 console.error('Error fetching object fields:', error);
                             });
-                        console.log('this.objectFields fetchFieldsForObject:- ', JSON.stringify(this.objectFields));
 
                         this.FlowId = existingFlowPath.WB_Flow__c || '';
 
@@ -490,16 +459,11 @@ export default class AutomationPath extends LightningElement {
 
     // getFilteredFlowFields(objectFieldType) {
     //     objectFieldType = objectFieldType.toUpperCase();
-    //     console.log('Called with objectFieldType:', objectFieldType);
     //     const compatibleTypes = (this.typeCompatibilityMap[objectFieldType] || []).map(t => t.toUpperCase());
-    //     // console.log('Compatible Types:', JSON.stringify(compatibleTypes));
-    //     // console.log('All Flow Fields:', JSON.stringify(this.flowFields, null, 2));
-    //     console.log('this.flowFields ::: ', JSON.stringify(this.flowFields));
 
     //     return this.flowFields
     //         .filter(field => {
     //             const match = compatibleTypes.includes(field.type?.toUpperCase());
-    //             // console.log(`Checking field: ${field.label}, type: ${field.type}, match: ${match}`);
     //             return match;
     //         })
     //         .map(field => ({ label: field.label, value: field.value }));
@@ -507,11 +471,9 @@ export default class AutomationPath extends LightningElement {
 
     getFilteredFlowFields(objectFieldType) {
         objectFieldType = objectFieldType.toUpperCase();
-        console.log('Called with objectFieldType:', objectFieldType);
 
         const compatibleTypes = (this.typeCompatibilityMap[objectFieldType] || []).map(t => t.toUpperCase());
 
-        console.log('this.flowFields ::: ', JSON.stringify(this.flowFields));
 
         return this.flowFields
             .filter(field => {
@@ -529,13 +491,10 @@ export default class AutomationPath extends LightningElement {
 
     fetchFieldsForObject(objectName) {
         try {
-            console.log('Fetching fields for object:', objectName);
             getObjectFields({ objectName: objectName })
                 .then((result) => {
-                    // console.log('fetchFieldsForObjects after apex:- ',JSON.stringify(result))
                     this.objectFields = result;
                 });
-            console.log('this.objectFields fetchFieldsForObject:- ', JSON.stringify(this.objectFields));
         } catch (error) {
             console.error('Error fetching fields:', error);
         }
@@ -612,7 +571,6 @@ export default class AutomationPath extends LightningElement {
 
     handleTemplateButtonClick(event) {
         this.selectedTemplateButtonId = event.target.dataset.id;
-        console.log('Selected Template Button:', this.selectedTemplateButtonId);
 
         if (this.automationPaths[this.selectedTemplateButtonId]) {
             this.selectedTemplateId = this.automationPaths[this.selectedTemplateButtonId].templateId;
@@ -624,7 +582,6 @@ export default class AutomationPath extends LightningElement {
 
     handleActionChange(event) {
         this.selectedAction = event.target.value;
-        console.log('Selected Action:', this.selectedAction);
         // Reset specific view states if needed when changing tabs
         this.searchTerm = '';
         this.selectedTemplateId = null;
@@ -632,7 +589,6 @@ export default class AutomationPath extends LightningElement {
 
     // handleSendOptionChange(event) {
     //     this.isScheduled = event.target.value === 'scheduled';
-    //     console.log('Send Option:', this.isScheduled);
     // }
 
     handleSearchChange(event) {
@@ -641,7 +597,6 @@ export default class AutomationPath extends LightningElement {
 
     handleTemplateSelect(event) {
         this.selectedTemplateId = event.currentTarget.dataset.id;
-        console.log('Selected WhatsApp Template:', this.selectedTemplateId);
 
         if (this.selectedTemplateButtonId && this.selectedAction) {
             this.automationPaths[this.selectedTemplateButtonId] = {
@@ -649,18 +604,14 @@ export default class AutomationPath extends LightningElement {
                 templateType: this.selectedAction,
             };
         }
-
-        console.log('Updated automationPaths:', JSON.stringify(this.automationPaths));
     }
 
     // handleDurationValueChange(event) {
     //     this.durationValue = event.target.value;
-    //     console.log('Selected Duration Value:', this.durationValue);
     // }
 
     // handleDurationUnitChange(event) {
     //     this.durationUnit = event.target.value;
-    //     console.log('Selected Duration Unit:', this.durationUnit);
     // }
 
     handleCancel() {
@@ -675,7 +626,6 @@ export default class AutomationPath extends LightningElement {
         this.automationPaths = {};
         this.allEmailTemplates = [];
         this.allObjects = [];
-        console.log('Cancel clicked');
 
         try {
             
@@ -691,7 +641,6 @@ export default class AutomationPath extends LightningElement {
 
     handleSave() {
 
-        console.log('saveAutomationPath triggered');
 
         if (!this.isFlowTemplate) {
 
@@ -722,8 +671,6 @@ export default class AutomationPath extends LightningElement {
                     Action_Email_Template__c: actionEmailTemplate
                 };
             });
-
-            console.log('Saving Automation Paths:', JSON.stringify(automationPathRecords));
 
             saveAutomationPaths({ automationPaths: automationPathRecords })
                 .then((result) => {
@@ -792,12 +739,7 @@ export default class AutomationPath extends LightningElement {
             fields.WB_Flow__c = this.FlowId;
 
             if (this.FlowRecordId) {
-
-                console.log('Updating existing record with ID:', this.FlowRecordId);
-
                 fields.Id = this.FlowRecordId;
-                console.log('Fields to save:', JSON.stringify(fields));
-
                 const updateInput = { fields };
                 updateRecord(updateInput)
                     .then(() => {
@@ -808,14 +750,10 @@ export default class AutomationPath extends LightningElement {
                         this.showToast('Error', 'Error updating record', 'error');
                     });
             } else {
-
-                console.log('Creating new record');
-                console.log('Fields to save:', JSON.stringify(fields));
                 const recordInput = { apiName: 'Automation_Path__c', fields };
 
                 createRecord(recordInput)
                     .then(result => {
-                        console.log('result = ', JSON.stringify(result));
                         this.showToast('Success', 'Record saved successfully', 'success');
                     })
                     .catch(error => {
@@ -830,12 +768,9 @@ export default class AutomationPath extends LightningElement {
         try {
             this.isEdit = false;
             this.selectedObject = event.target.value;
-            console.log('Selected Object:', this.selectedObject);
             
             getUsedObjectNamesByTemplate({ templateId: this.automation.templateId })
             .then(usedObjects => {
-                console.log('this.templateId:', this.automation.templateId);
-                console.log('Used Objects:', JSON.stringify(usedObjects));
                 if (usedObjects.includes(this.selectedObject)) {
                     this.showToast('Error', 'This object is already being used in an automation.', 'error');
                     this.selectedObject = '';
@@ -868,7 +803,6 @@ export default class AutomationPath extends LightningElement {
     handleObjectFieldChange(event) {
         const rowId = event.target.dataset.rowId;
         const value = event.detail.value;
-        console.log('Value in handleObjectFieldChange:', value);
         const fieldType = this.objectFields.find(field => field.value === value)?.type || '';
         this.chatWindowRows = this.chatWindowRows.map(row =>
             row.id === rowId ? {
@@ -879,8 +813,6 @@ export default class AutomationPath extends LightningElement {
                 selectedFlowField: ''
             } : row
         );
-        // console.log('this.chatWindowRows:', JSON.stringify(this.chatWindowRows));
-        // console.log('this.getFilteredFlowFields:', JSON.stringify(this.getFilteredFlowFields(fieldType)));
     }
 
     handleObjectChangeForChat(event) {
@@ -889,7 +821,6 @@ export default class AutomationPath extends LightningElement {
         this.chatWindowRows = this.chatWindowRows.map(row =>
             row.id === rowId ? { ...row, selectedFlowField: value } : row
         );
-        console.log('this.chatWindowRows in handleObjectChangeForChat:', JSON.stringify(this.chatWindowRows));
     }
 
     handleDeleteRow(event) {
@@ -903,7 +834,6 @@ export default class AutomationPath extends LightningElement {
     }
 
     isFieldRequired(apiName) {
-        console.log('this.requiredFields', JSON.stringify(this.requiredFields));
         if (!this.requiredFields || this.requiredFields.length === 0) {
             return false;
         }

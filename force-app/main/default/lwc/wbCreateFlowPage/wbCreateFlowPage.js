@@ -116,11 +116,9 @@ export default class WbCreateFlowPage extends LightningElement {
 
     getJSONDataFromApex(){
         try {
-            console.log(this.templateType);
             this.isLoading = true;
             getJSONData({type: this.templateType})
                 .then((data) => {
-                    console.log({data});
                     if(data){
                         this.jsonString = data;
     
@@ -128,7 +126,6 @@ export default class WbCreateFlowPage extends LightningElement {
     
                         createWhatsAppFlow({ flowName: this.flowName, categories: catagories, flowJson: this.jsonString, templateType: this.templateType })
                             .then((result) => {
-                                console.log({result});
                                 if (!result.startsWith('Failed')) {
                                     this.flowId = result;
                                     this.status = 'Draft';
@@ -209,7 +206,6 @@ export default class WbCreateFlowPage extends LightningElement {
                 this.isLoading = true;
                 getPreviewURLofWhatsAppFlow({ flowId : this.flowId })
                     .then((data) => {
-                        console.log({data});
                         if(data != 'failed'){
                             this.flowPreviewURL = data;
                         } else {

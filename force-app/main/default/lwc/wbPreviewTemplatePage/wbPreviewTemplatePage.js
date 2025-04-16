@@ -96,13 +96,10 @@ export default class WbPreviewTemplatePage extends LightningElement {
 
     @api
     get templateid() {
-        console.log('Get templateid:',this._templateid);
-        
         return this._templateid;
     }
 
     set templateid(value) {
-        console.log('Set templateid:',value);
         this._templateid = value;
         if (this._templateid) {
             this.fetchTemplateData();
@@ -204,7 +201,6 @@ export default class WbPreviewTemplatePage extends LightningElement {
             try {
                 loadScript(this, EMOJI_LIB + '/countryData.js')
                     .then(() => {
-                        console.log('Script loaded. countryData:', window.countryData);
                         const formattedCountries = window.countryData.map(country => {
                             return {
                                 label: `${country.name} (${country.callingCode})`,
@@ -422,7 +418,6 @@ export default class WbPreviewTemplatePage extends LightningElement {
 
     fetchReplaceVariableTemplate(templateid,contactid){
         try {
-            console.log('templateid:',templateid,'contactid:',contactid);
             
             getTemplateDataWithReplacement({templateId: templateid, contactId:contactid})
             .then((templateData) => {
@@ -450,11 +445,6 @@ export default class WbPreviewTemplatePage extends LightningElement {
         this.isLoading = true; 
     
         try {
-            console.log("Group Var ::: ",this.groupedVariables);
-            console.log("Header Params ::: ",this.headerPramsCustomList);
-            console.log("Body Params ::: ",this.bodyPramsCustomList);
-            
-            console.log(this.headerPramsCustomList.length == 0 && this.bodyPramsCustomList.length == 0)
             
             if(this.groupedVariables.length == (this.headerPramsCustomList.length+this.bodyPramsCustomList.length)){
                 this.showMessageToast('Warning', 'Please fill all input fields', 'error');

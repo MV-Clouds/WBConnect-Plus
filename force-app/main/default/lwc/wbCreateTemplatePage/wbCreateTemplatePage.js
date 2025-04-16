@@ -603,7 +603,6 @@ export default class WbCreateTemplatePage extends LightningElement {
         this.generateEmojiCategories();
         this.fetchUpdatedTemplates(false);
         this.fetchObjectsWithPhoneField();
-        console.log(this.activeSection);
         
         // const activeBtn = this.template.querySelector(`[data-tab="${this.activeSection}"]`);
         // if (activeBtn) {
@@ -611,22 +610,6 @@ export default class WbCreateTemplatePage extends LightningElement {
         // }
     }
 
-    // fetchObjectsWithPhoneField() {
-    //     this.isLoading = true;
-    //     getObjectsWithPhoneField()
-    //     .then((result) => {            
-    //         this.availableObjects = result;
-    //         this.selectedObject = this.availableObjects[0].value;
-    //         this.fetchFields(this.selectedObject);
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error fetching objects with phone field: ', error);
-    //         this.showMessageToast('Error', `Error fetching objects with phone field: ${error.message}`, 'error');
-    //     })
-    //     .finally(() => {
-    //         this.isLoading = false;
-    //     });
-    // }
     fetchObjectsWithPhoneField() {
         this.isLoading = true;
         try {
@@ -648,9 +631,6 @@ export default class WbCreateTemplatePage extends LightningElement {
     }
     
     renderedCallback() {
-        // if(!this.isStage2){
-        //     this.buttonList = [];
-        // }
         loadStyle(this, wbCreateTempStyle).then(() => {
             try {
                 
@@ -668,10 +648,6 @@ export default class WbCreateTemplatePage extends LightningElement {
                         console.warn(`Element with class .${this.activeSection} not found`);
                     }
                 }
-                
-                // var c = '.' + this.activeSection;
-                // this.template.querySelector('.section1').classList.add('active-tab');
-
             } catch (error) {
                 console.error('eror :: ', error);
                 
@@ -1417,8 +1393,6 @@ export default class WbCreateTemplatePage extends LightningElement {
                     this.footer = value;
                     break;
                 case 'tempBody':
-                    console.log('Temp Body :: ',value);
-                    
                     this.tempBody = value.replace(/(\n\s*){3,}/g, '\n\n');
 
                     this.formatedTempBody = this.formatText(this.tempBody);
@@ -2167,7 +2141,6 @@ export default class WbCreateTemplatePage extends LightningElement {
         try{
             loadScript(this, EMOJI_LIB + '/emojiData.js')
                 .then(() => {
-                    console.log('Script loaded. emojiData:', window.emojiData);
                     const groupedEmojis = Object.values(
                         window.emojiData.reduce((acc, item) => {
                             const category = item.category;
@@ -2206,7 +2179,6 @@ export default class WbCreateTemplatePage extends LightningElement {
         try {
             loadScript(this, EMOJI_LIB + '/countryData.js')
                 .then(() => {
-                    console.log('Script loaded. countryData:', window.countryData);
                     const formattedCountries = window.countryData.map(country => {
                         return {
                             label: `${country.name} (${country.callingCode})`,
@@ -2272,7 +2244,6 @@ export default class WbCreateTemplatePage extends LightningElement {
         try {
             loadScript(this, EMOJI_LIB + '/lanaguageData.js')
                 .then(() => {
-                    console.log('Script loaded. languageData:', window.languageData);
                     const languageList = window.languageData.map(lang => {
                         return {
                             label: lang.language,

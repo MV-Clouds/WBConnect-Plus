@@ -129,7 +129,6 @@ export default class ChatWindow extends LightningElement {
             if (this.isAwsSdkInitialized) {
                 Promise.all([loadScript(this, AWS_SDK)])
                     .then(() => {
-                        console.log('Script loaded successfully');
                     })
                     .catch((error) => {
                         console.error("error -> ", error);
@@ -167,7 +166,6 @@ export default class ChatWindow extends LightningElement {
 
     handleContactsSearch(event) {
         const searchTerm = event.target.value.toLowerCase(); // Convert to lowercase for case-insensitive search
-        console.log('Search term: ', searchTerm);
 
         if (searchTerm) {
             this.filteredContacts = this.contacts.filter(con =>
@@ -180,7 +178,6 @@ export default class ChatWindow extends LightningElement {
 
     handleContactClick(event) {
         const contactId = event.currentTarget.dataset.id;
-        console.log('Clicked contactId Id:', contactId);
         
         this.recordId = contactId;
         this.getInitialData();
@@ -206,12 +203,10 @@ export default class ChatWindow extends LightningElement {
             this.showMessageToast('Error', 'Name & Phone is required.', 'error');
             return;
         }
-        console.log(this.nameValue, this.phoneValue);
         
         // Call Apex to create Contact
         createContact({ name: this.nameValue, phone: this.phoneValue})
             .then(result => {
-                console.log({result});
                 this.showMessageToast('Success', 'Contact Created Successfully!', 'success');
                 this.getContactsForChat();
                 this.recordId = result;
@@ -239,7 +234,6 @@ export default class ChatWindow extends LightningElement {
     handleDeleteYesPopup(){
         deleteContact({conId: this.recordId})
             .then(result => {
-                console.log({result});
                 this.showMessageToast('Success', 'Contact Deleted Successfully!', 'success');
                 this.getContactsForChat();
                 this.recordName = null;
@@ -264,7 +258,6 @@ export default class ChatWindow extends LightningElement {
         if(!hideSpinner || hideSpinner == false){
             this.showSpinner = true;
         }
-        console.log('Method called at:', new Date().toLocaleTimeString());
         try {
             getCombinedData({ contactId: this.recordId, objectApiName: this.objectApiName })
                 .then(combinedData => {
@@ -413,7 +406,6 @@ export default class ChatWindow extends LightningElement {
                 this.scrollBottom = true;
             }
             this.checkLastMessage();
-            console.log(this.groupedChats);
         } catch (e) {
             console.error('Error in function processChats:::', e.message);
             this.showSpinner = false;
@@ -1044,7 +1036,6 @@ export default class ChatWindow extends LightningElement {
         try {
             getS3ConfigSettings()
                 .then(result => {
-                    console.log('result--> ', result);
                     if (result != null) {
                         this.confData = result;
                         this.isAWSEnabled = true;
@@ -1065,7 +1056,6 @@ export default class ChatWindow extends LightningElement {
                 let fileSizeMB = Math.floor(file.size / (1024 * 1024));
                 let isValid = false;
                 let maxSize = 0;
-                console.log(fileType, fileSizeMB);
     
                 if (fileType.includes('image/')) {
                     maxSize = 5;
@@ -1107,7 +1097,6 @@ export default class ChatWindow extends LightningElement {
         try {
             this.showSpinner = true;
             this.initializeAwsSdk(this.confData);
-            console.log(this.selectedFilesToUpload);
             const uploadPromises = this.selectedFilesToUpload.map(async (file) => {
                 this.showSpinner = true;
                 let objKey = this.renameFileName(this.selectedFileName);
@@ -1123,12 +1112,10 @@ export default class ChatWindow extends LightningElement {
 
                 return await upload.promise();
             });
-            console.log(uploadPromises);
             // Wait for all uploads to complete
             const results = await Promise.all(uploadPromises);
             results.forEach((result) => {
                 if (result) {
-                    console.log({result});
                     let bucketName = this.confData.S3_Bucket_Name__c;
                     let objKey = result.Key;
                     let awsFileUrl = `https://${bucketName}.s3.amazonaws.com/${objKey}`;

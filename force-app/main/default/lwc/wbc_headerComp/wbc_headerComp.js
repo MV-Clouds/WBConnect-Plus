@@ -45,38 +45,12 @@ export default class Wbc_headerComp extends NavigationMixin(LightningElement) {
         }
     };
 
-    // handleDropdownButtonClick(event) {
-    //     event.stopPropagation();
-
-    //     let textContent = event.target.textContent;
-    //     if(textContent == 'My Profile'){
-    //         window.location.href = '#';
-    //     } else if(textContent == 'Reset Password') {
-    //         // window.location.href = '/s/ForgotPassword/';
-    //         this[NavigationMixin.Navigate]({
-    //             type: 'comm__namedPage',
-    //             attributes: {
-    //                 name: 'Forgot_Password',
-    //             },
-    //         });
-    //     } else if(textContent == 'Logout') {
-    //         // window.location.href = '/s/login/';
-    //         this[NavigationMixin.Navigate]({
-    //             type: 'comm__namedPage',
-    //             attributes: {
-    //                 name: 'Login',
-    //             },
-    //         });
-    //     }
-    // }
-
     handleResetPass(){
         try {
-            console.log('here in forgot');
             this[NavigationMixin.Navigate]({
-                type: 'comm__namedPage',
+                type: 'standard__webPage',
                 attributes: {
-                    name: 'Forgot_Password',
+                    url: '/login/ForgotPassword/',
                 },
             });
         } catch (error) {
@@ -85,11 +59,10 @@ export default class Wbc_headerComp extends NavigationMixin(LightningElement) {
     }
 
     handleLogout(){
-        console.log('her is logout');
         this[NavigationMixin.Navigate]({
-            type: 'comm__namedPage',
+            type: 'standard__webPage',
             attributes: {
-                name: 'Login',
+                url: '/login/',
             },
         });
     }

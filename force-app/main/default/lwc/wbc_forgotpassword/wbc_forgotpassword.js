@@ -71,7 +71,6 @@ export default class Wbc_forgotpassword extends NavigationMixin(LightningElement
 
         forgotPassword({ usernameval: this.email })
             .then(result => {
-                console.log(result);
                 this.isLoading = false;
                 this.isDisbaled = false;
                 if (result[0] === 'Success') {
